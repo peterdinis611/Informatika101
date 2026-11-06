@@ -1,0 +1,775 @@
+export type QuizQuestion = {
+  id: string
+  question: string
+  options: string[]
+  correctIndex: number
+  explanation: string
+}
+
+export type Lesson = {
+  id: string
+  order: number
+  title: string
+  shortTitle: string
+  description: string
+  guideIntro: string
+  task: string
+  taskHint: string
+  badge: string
+  accent: string
+  quiz: QuizQuestion[]
+}
+
+export const LESSONS: Lesson[] = [
+  {
+    id: "what-is-a-computer",
+    order: 1,
+    title: "Čo je počítač?",
+    shortTitle: "Úvod",
+    description:
+      "Počítač prijíma údaje (vstup), spracuje ich, uloží a ukáže výsledok (výstup).",
+    guideIntro:
+      "Ahoj! Som Byte, tvoj sprievodca. Poďme spolu zistiť, čo vlastne počítač robí — je to ako šikovná kuchárka: dostane recept, varí, a podáva hotové jedlo!",
+    task: "Klikni na bloky Vstup → Spracovanie → Uloženie → Výstup a sleduj tok dát.",
+    taskHint: "Začni pri klávesnici (vstup) a sleduj, ako sa gulôčka dát pohybuje.",
+    badge: "Prvý bit",
+    accent: "#0D9488",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo znamená „vstup“ pri počítači?",
+        options: [
+          "Údaje, ktoré do počítača posielame",
+          "Obrázok na monitore",
+          "Zvuk z reproduktorov",
+          "Vypnutie počítača",
+        ],
+        correctIndex: 0,
+        explanation:
+          "Vstup sú údaje z klávesnice, myši, mikrofónu alebo kamery.",
+      },
+      {
+        id: "q2",
+        question: "Kde počítač dlhodobo uchováva súbory?",
+        options: ["V monitore", "Na disku", "V myši", "V káble"],
+        correctIndex: 1,
+        explanation: "Disk (alebo SSD) uchováva údaje aj po vypnutí.",
+      },
+      {
+        id: "q3",
+        question: "Čo je výstup?",
+        options: [
+          "Výsledok, ktorý počítač ukáže alebo prehrá",
+          "Len klávesnica",
+          "Len procesor",
+          "Len internet",
+        ],
+        correctIndex: 0,
+        explanation: "Výstup je napríklad text na monitore, zvuk alebo tlač.",
+      },
+    ],
+  },
+  {
+    id: "hardware",
+    order: 2,
+    title: "Hardvér — súčasti počítača",
+    shortTitle: "Hardvér",
+    description:
+      "Skrinka, doska, CPU, RAM, disk, zdroj a grafická karta — každá časť má svoju úlohu.",
+    guideIntro:
+      "Teraz otvoríme počítač ako skladačku! Klikni na súčasti a zisti, čo ktorá robí. Môžeš model aj rozložiť.",
+    task: "Rozlož počítač, klikni na každú súčasť a prečítaj vysvetlenie.",
+    taskHint: "Použi tlačidlo „Rozložiť“. Potom klikaj na diely.",
+    badge: "Staviteľ",
+    accent: "#2563EB",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo je „mozog“ počítača?",
+        options: ["RAM", "CPU (procesor)", "Disk", "Zdroj"],
+        correctIndex: 1,
+        explanation: "CPU vykonáva inštrukcie a počíta.",
+      },
+      {
+        id: "q2",
+        question: "Na čo slúži RAM?",
+        options: [
+          "Na dočasné uchovanie údajov pri práci",
+          "Na tlač dokumentov",
+          "Na chladenie",
+          "Na napájanie",
+        ],
+        correctIndex: 0,
+        explanation: "RAM je rýchla, ale po vypnutí sa vymaže.",
+      },
+      {
+        id: "q3",
+        question: "Čo robí napájací zdroj?",
+        options: [
+          "Dodáva elektrinu súčiastkam",
+          "Kreslí 3D hry",
+          "Ukladá fotky",
+          "Pripája internet",
+        ],
+        correctIndex: 0,
+        explanation: "Zdroj mení sieťový prúd na bezpečné napätie pre diely.",
+      },
+    ],
+  },
+  {
+    id: "bits-and-bytes",
+    order: 3,
+    title: "Bity a bajty",
+    shortTitle: "Bity",
+    description:
+      "Počítač rozumie len 0 a 1. Osem bitov tvorí jeden bajt — a z toho vzniká text aj čísla.",
+    guideIntro:
+      "Predstav si vypínače svetla: vypnuté = 0, zapnuté = 1. Skladaním vypínačov vytvoríš čísla aj písmená!",
+    task: "Nastav vypínače tak, aby vyšlo číslo 13. Potom skús napísať písmeno.",
+    taskHint: "13 v binárke je 00001101. Pre text použij ASCII prevod.",
+    badge: "Binárny majster",
+    accent: "#CA8A04",
+    quiz: [
+      {
+        id: "q1",
+        question: "Koľko hodnôt môže mať jeden bit?",
+        options: ["1", "2", "8", "10"],
+        correctIndex: 1,
+        explanation: "Bit je 0 alebo 1 — dve možnosti.",
+      },
+      {
+        id: "q2",
+        question: "Koľko bitov má jeden bajt?",
+        options: ["4", "8", "16", "32"],
+        correctIndex: 1,
+        explanation: "1 bajt = 8 bitov.",
+      },
+      {
+        id: "q3",
+        question: "Čo je ASCII?",
+        options: [
+          "Tabuľka, ktorá priraďuje čísla písmenám a znakom",
+          "Názov procesora",
+          "Typ kábla",
+          "Hra",
+        ],
+        correctIndex: 0,
+        explanation: "Napríklad písmeno A má v ASCII číslo 65.",
+      },
+    ],
+  },
+  {
+    id: "cpu",
+    order: 4,
+    title: "Procesor (CPU)",
+    shortTitle: "CPU",
+    description:
+      "Procesor stále opakuje cyklus: načítaj → dekóduj → vykonaj. Má aj registre na rýchle čísla.",
+    guideIntro:
+      "CPU je ako kuchár, ktorý číta recept riadok po riadku. Ty budeš krokovat jednoduchý program!",
+    task: "Krokuj program: LOAD 5, ADD 3, STORE. Sleduj registre.",
+    taskHint: "Stláčaj „Ďalší krok“. Počítač najprv načíta, potom pochopí, potom urobí.",
+    badge: "Cyklovač",
+    accent: "#DC2626",
+    quiz: [
+      {
+        id: "q1",
+        question: "Aké sú 3 kroky CPU cyklu?",
+        options: [
+          "Načítaj – dekóduj – vykonaj",
+          "Zapni – vypni – spí",
+          "Vstup – tlač – výstup",
+          "Kopíruj – vlož – zmaž",
+        ],
+        correctIndex: 0,
+        explanation: "Fetch – Decode – Execute je základný cyklus.",
+      },
+      {
+        id: "q2",
+        question: "Čo sú registre?",
+        options: [
+          "Malé rýchle „škatuľky“ v CPU na čísla",
+          "Veľké disky",
+          "Monitory",
+          "Klávesy",
+        ],
+        correctIndex: 0,
+        explanation: "Registre sú najrýchlejšia pamäť vnútri procesora.",
+      },
+      {
+        id: "q3",
+        question: "Čo robí inštrukcia ADD?",
+        options: ["Sčíta hodnoty", "Vymaže disk", "Zapne Wi‑Fi", "Otvorí hru"],
+        correctIndex: 0,
+        explanation: "ADD pripočíta číslo k hodnote v registri.",
+      },
+    ],
+  },
+  {
+    id: "memory",
+    order: 5,
+    title: "RAM vs. disk",
+    shortTitle: "Pamäť",
+    description:
+      "RAM je rýchla a dočasná. Disk je pomalší, ale údaje uchová aj po vypnutí.",
+    guideIntro:
+      "Predstav si stôl (RAM) a skriňu (disk). Na stole pracuješ rýchlo, do skrine ukladáš na dlhšie.",
+    task: "Ulož údaj do RAM aj na disk, potom „vypni“ počítač a porovnaj, čo zostalo.",
+    taskHint: "Po vypnutí RAM zmizne, disk zostane.",
+    badge: "Pamätník",
+    accent: "#7C3AED",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo sa stane s RAM po vypnutí?",
+        options: [
+          "Údaje sa stratia",
+          "Údaje ostanú navždy",
+          "RAM sa zväčší",
+          "Nič",
+        ],
+        correctIndex: 0,
+        explanation: "RAM je volatilná — potrebuje prúd.",
+      },
+      {
+        id: "q2",
+        question: "Kde uložíš školskú prácu na zajtra?",
+        options: ["Na disk / do súboru", "Len do RAM", "Do procesora", "Do myši"],
+        correctIndex: 0,
+        explanation: "Trvalé uloženie = disk, cloud, USB…",
+      },
+      {
+        id: "q3",
+        question: "Ktorá pamäť je zvyčajne rýchlejšia?",
+        options: ["RAM", "Disk", "Papier", "CD"],
+        correctIndex: 0,
+        explanation: "RAM je oveľa rýchlejšia ako disk.",
+      },
+    ],
+  },
+  {
+    id: "operating-system",
+    order: 6,
+    title: "Operačný systém a programy",
+    shortTitle: "OS",
+    description:
+      "OS je most medzi hardvérom a aplikáciami. Spúšťa procesy a rozdeľuje zdroje.",
+    guideIntro:
+      "Bez operačného systému by programy nevedeli rozprávať s hardvérom. Pozri vrstvy a spusti procesy!",
+    task: "Spusti 2–3 procesy a sleduj, ako sa objavia nad vrstvou OS.",
+    taskHint: "Klikni na ikony aplikácií. Každá vytvorí proces.",
+    badge: "Správca",
+    accent: "#059669",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo je operačný systém?",
+        options: [
+          "Program, ktorý riadi hardvér a spúšťa aplikácie",
+          "Len hra",
+          "Len klávesnica",
+          "Typ kábla",
+        ],
+        correctIndex: 0,
+        explanation: "Windows, macOS, Linux, Android… to sú OS.",
+      },
+      {
+        id: "q2",
+        question: "Čo je proces?",
+        options: [
+          "Bežiaca inštancia programu",
+          "Vypnutý počítač",
+          "USB kľúč",
+          "Farba obrazovky",
+        ],
+        correctIndex: 0,
+        explanation: "Keď otvoríš prehliadač, vznikne proces.",
+      },
+      {
+        id: "q3",
+        question: "Správne poradie vrstiev je:",
+        options: [
+          "Hardvér → OS → Aplikácie",
+          "Aplikácie → Hardvér → OS",
+          "OS → Aplikácie → Hardvér len",
+          "Len hardvér",
+        ],
+        correctIndex: 0,
+        explanation: "Aplikácie stoja na OS, OS stojí na hardvéri.",
+      },
+    ],
+  },
+  {
+    id: "logic-gates",
+    order: 7,
+    title: "Logické hradlá",
+    shortTitle: "Hradlá",
+    description:
+      "AND, OR a NOT sú základné stavebné kamene čipov. Z vypínačov a žiaroviek postavíš obvod.",
+    guideIntro:
+      "Hradlá rozhodujú ako áno/nie. AND potrebuje oba vstupy, OR stačí jeden, NOT otáča!",
+    task: "Rozsvieť žiarovku pomocou AND (oba zapnuté) a potom skús OR a NOT.",
+    taskHint: "Pri AND musia svietiť oba vypínače. Pri OR stačí jeden.",
+    badge: "Logik",
+    accent: "#EA580C",
+    quiz: [
+      {
+        id: "q1",
+        question: "Kedy AND vypustí 1?",
+        options: [
+          "Keď sú oba vstupy 1",
+          "Keď je aspoň jeden 1",
+          "Nikdy",
+          "Vždy",
+        ],
+        correctIndex: 0,
+        explanation: "AND = „a zároveň“.",
+      },
+      {
+        id: "q2",
+        question: "Čo robí NOT?",
+        options: [
+          "Otočí 0 na 1 a 1 na 0",
+          "Sčíta dve čísla",
+          "Uloží súbor",
+          "Zapne Wi‑Fi",
+        ],
+        correctIndex: 0,
+        explanation: "NOT je negácia.",
+      },
+      {
+        id: "q3",
+        question: "OR dá 1, keď…",
+        options: [
+          "Aspoň jeden vstup je 1",
+          "Oba sú 0",
+          "Nikdy",
+          "Len v noci",
+        ],
+        correctIndex: 0,
+        explanation: "OR = „alebo“.",
+      },
+    ],
+  },
+  {
+    id: "networking",
+    order: 8,
+    title: "Sieť a internet",
+    shortTitle: "Sieť",
+    description:
+      "Dáta cestujú ako pakety cez routery. IP adresa je adresa domu, DNS je telefónny zoznam mien.",
+    guideIntro:
+      "Keď otvoríš web, tvoja správa cestuje po svete a späť — pozeraj paket na mape!",
+    task: "Spusti cestu paketu: PC → router → server → späť. Prečítaj o IP a DNS.",
+    taskHint: "Stlač „Odoslať paket“ a sleduj animáciu.",
+    badge: "Cestovateľ",
+    accent: "#0284C7",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo je IP adresa?",
+        options: [
+          "Číselná adresa zariadenia v sieti",
+          "Heslo k Wi‑Fi",
+          "Názov hry",
+          "Typ procesora",
+        ],
+        correctIndex: 0,
+        explanation: "Napríklad 192.168.1.10 — ako číslo domu.",
+      },
+      {
+        id: "q2",
+        question: "Na čo slúži DNS?",
+        options: [
+          "Prekladá mená (google.com) na IP adresy",
+          "Kreslí obrázky",
+          "Nabíja batériu",
+          "Maže vírusy",
+        ],
+        correctIndex: 0,
+        explanation: "DNS je ako zoznam: meno → číslo.",
+      },
+      {
+        id: "q3",
+        question: "Čo je paket?",
+        options: [
+          "Malý balík dát posielaný po sieti",
+          "Celý počítač",
+          "Monitor",
+          "Klávesnica",
+        ],
+        correctIndex: 0,
+        explanation: "Veľké správy sa delia na pakety.",
+      },
+    ],
+  },
+  {
+    id: "programming",
+    order: 9,
+    title: "Úvod do programovania",
+    shortTitle: "Kód",
+    description:
+      "Premenné, podmienky a cykly — základné kocky, z ktorých staviaš programy.",
+    guideIntro:
+      "Programovanie je dávanie príkazov počítaču. Poskladaj kocky a spusti animáciu!",
+    task: "Nastav premennú, pridaj podmienku a cyklus, potom spusti program.",
+    taskHint: "Skús: počet = 3; ak počet > 0; opakuj 3× „Ahoj“.",
+    badge: "Kódér",
+    accent: "#DB2777",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo je premenná?",
+        options: [
+          "Pomenovaná „škatuľka“ na hodnotu",
+          "Vírus",
+          "Monitor",
+          "Router",
+        ],
+        correctIndex: 0,
+        explanation: "Napríklad meno = \"Anna\" alebo skóre = 10.",
+      },
+      {
+        id: "q2",
+        question: "Podmienka (if) slúži na…",
+        options: [
+          "Rozhodnutie: ak platí niečo, urob to",
+          "Vypnutie PC",
+          "Len kreslenie",
+          "Nabíjanie",
+        ],
+        correctIndex: 0,
+        explanation: "Napríklad: ak skóre > 10, vyhral si.",
+      },
+      {
+        id: "q3",
+        question: "Cyklus (loop) znamená…",
+        options: [
+          "Opakovanie príkazov",
+          "Jednorazové vypnutie",
+          "Mazanie disku",
+          "Zmenu farby RAM",
+        ],
+        correctIndex: 0,
+        explanation: "Cykly šetria prácu — opakujú kód.",
+      },
+    ],
+  },
+  {
+    id: "security",
+    order: 10,
+    title: "Bezpečnosť",
+    shortTitle: "Bezpečnosť",
+    description:
+      "Silné heslá, pozor na malvér a šifrovanie chránia tvoje údaje.",
+    guideIntro:
+      "Naučíme sa, ako sa nenechať oklamať a ako chrániť tajomstvá na webe aj v škole.",
+    task: "Vytvor silné heslo, odhaľ podozrivú správu a vyskúšaj šifrovanie Caesar.",
+    taskHint: "Silné heslo má dĺžku, veľké/malé písmená, čísla a symboly.",
+    badge: "Strážca",
+    accent: "#4F46E5",
+    quiz: [
+      {
+        id: "q1",
+        question: "Ktoré heslo je bezpečnejšie?",
+        options: [
+          "Dlhé s veľkými, malými, číslami a symbolmi",
+          "123456",
+          "meno domáceho zvieraťa",
+          "heslo",
+        ],
+        correctIndex: 0,
+        explanation: "Dĺžka a rozmanitosť znakov zvyšujú bezpečnosť.",
+      },
+      {
+        id: "q2",
+        question: "Čo je malvér?",
+        options: [
+          "Škodlivý softvér",
+          "Rýchly procesor",
+          "Typ RAM",
+          "Herná konzola",
+        ],
+        correctIndex: 0,
+        explanation: "Malvér môže kradnúť údaje alebo poškodzovať systém.",
+      },
+      {
+        id: "q3",
+        question: "Šifrovanie znamená…",
+        options: [
+          "Premenu správy na nečitateľný tvar bez kľúča",
+          "Mazanie súborov",
+          "Zrýchlenie Wi‑Fi",
+          "Zväčšenie disku",
+        ],
+        correctIndex: 0,
+        explanation: "Bez kľúča (alebo hesla) správu neprečítaš.",
+      },
+    ],
+  },
+  {
+    id: "files-and-folders",
+    order: 11,
+    title: "Súbory a priečinky",
+    shortTitle: "Súbory",
+    description:
+      "Súbor je pomenovaný balík dát. Priečinky ich zbierajú do stromu, aby si ich našiel.",
+    guideIntro:
+      "Predstav si skriňu: priečinky sú police, súbory sú zošity. Cesta povie, kde zošit leží.",
+    task: "Presuň tri súbory do správnych priečinkov (Dokumenty, Obrázky, Hudba).",
+    taskHint: "Klikni na súbor a potom na priečinok, kam patrí.",
+    badge: "Archivár",
+    accent: "#CA8A04",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo je priečinok?",
+        options: [
+          "Kontajner, ktorý zbiera súbory a ďalšie priečinky",
+          "Typ procesora",
+          "Sieťový kábel",
+          "Heslo k Wi‑Fi",
+        ],
+        correctIndex: 0,
+        explanation: "Priečinky tvoria strom — ako police v skrini.",
+      },
+      {
+        id: "q2",
+        question: "Prípona .png najčastejšie znamená…",
+        options: ["Obrázok", "Hudbu", "Program", "Tabuľku"],
+        correctIndex: 0,
+        explanation: "Prípona napovedá typ súboru. .png a .jpg sú obrázky.",
+      },
+      {
+        id: "q3",
+        question: "Cesta /Domov/Obrázky/pes.png hovorí…",
+        options: [
+          "Kde súbor leží v strome priečinkov",
+          "Rýchlosť procesora",
+          "IP adresu",
+          "Veľkosť RAM",
+        ],
+        correctIndex: 0,
+        explanation: "Cesta je adresa súboru v súborovom systéme.",
+      },
+    ],
+  },
+  {
+    id: "algorithms",
+    order: 12,
+    title: "Algoritmy",
+    shortTitle: "Algoritmy",
+    description:
+      "Algoritmus je postup krok za krokom. Triedenie a hľadanie sú dva klasické príklady.",
+    guideIntro:
+      "Recept na palacinky je algoritmus. Počítač potrebuje jasné kroky — bez „trochu múky“.",
+    task: "Spusti triedenie: zoradiť 5 veží od najnižšej po najvyššiu.",
+    taskHint: "Klikni „Ďalší krok“ a sleduj, ako sa dva susedia vymenia.",
+    badge: "Kuchár kódu",
+    accent: "#DB2777",
+    quiz: [
+      {
+        id: "q1",
+        question: "Algoritmus je…",
+        options: [
+          "Presný postup, ako vyriešiť úlohu",
+          "Typ klávesnice",
+          "Názov pre RAM",
+          "Chyba v programe",
+        ],
+        correctIndex: 0,
+        explanation: "Každý program je súbor algoritmov.",
+      },
+      {
+        id: "q2",
+        question: "Triedenie (sort) robí…",
+        options: [
+          "Usporiada hodnoty podľa pravidla",
+          "Zmaže disk",
+          "Zapne Wi‑Fi",
+          "Nakreslí obrázok",
+        ],
+        correctIndex: 0,
+        explanation: "Napríklad čísla od najmenšieho po najväčšie.",
+      },
+      {
+        id: "q3",
+        question: "Prečo záleží na počte krokov?",
+        options: [
+          "Menej krokov = rýchlejší program",
+          "Kroky sú zadarmo",
+          "Počítač kroky ignoruje",
+          "Kroky menia farbu monitora",
+        ],
+        correctIndex: 0,
+        explanation: "Efektívny algoritmus šetrí čas aj energiu.",
+      },
+    ],
+  },
+  {
+    id: "databases",
+    order: 13,
+    title: "Databázy",
+    shortTitle: "Databázy",
+    description:
+      "Databáza ukladá údaje v tabuľkách. Riadok je záznam, stĺpec je vlastnosť.",
+    guideIntro:
+      "Triedny výkaz je tabuľka: žiak, známka, predmet. Databáza vie v tom rýchlo hľadať.",
+    task: "Vyfiltruj tabuľku: nechaj len žiakov so známkou 1.",
+    taskHint: "Stlač „Len jednotkári“ a pozri, ktoré riadky ostanú.",
+    badge: "Strážca tabuliek",
+    accent: "#2563EB",
+    quiz: [
+      {
+        id: "q1",
+        question: "Riadok v tabuľke predstavuje…",
+        options: [
+          "Jeden záznam (napr. jedného žiaka)",
+          "Celú databázu",
+          "Procesor",
+          "Heslo",
+        ],
+        correctIndex: 0,
+        explanation: "Stĺpce sú vlastnosti, riadky sú konkrétne veci.",
+      },
+      {
+        id: "q2",
+        question: "Načo je filter / dopyt?",
+        options: [
+          "Vybrať len riadky, ktoré spĺňajú podmienku",
+          "Zrýchliť Wi‑Fi",
+          "Nakresliť 3D model",
+          "Zmeniť OS",
+        ],
+        correctIndex: 0,
+        explanation: "Dopyt (query) kladie otázku tabuľke.",
+      },
+      {
+        id: "q3",
+        question: "Prečo neukladať všetko do jedného textového súboru?",
+        options: [
+          "Tabuľka umožňuje rýchle hľadanie a väzby",
+          "Súbory neexistujú",
+          "Text je zakázaný",
+          "Databáza je pomalšia vždy",
+        ],
+        correctIndex: 0,
+        explanation: "Štruktúra dát = rýchlejšie a spoľahlivejšie odpovede.",
+      },
+    ],
+  },
+  {
+    id: "web-and-html",
+    order: 14,
+    title: "Web a HTML",
+    shortTitle: "Web",
+    description:
+      "Webová stránka má štruktúru (HTML), vzhľad (CSS) a správanie (JavaScript).",
+    guideIntro:
+      "HTML je kostra, CSS oblečenie, JS svaly. Prehliadač to poskladá do stránky.",
+    task: "Zapni HTML, CSS aj JavaScript — až potom stránka ožije.",
+    taskHint: "V paneli Lab zapni všetky tri vrstvy.",
+    badge: "Staviteľ webu",
+    accent: "#EA580C",
+    quiz: [
+      {
+        id: "q1",
+        question: "HTML slúži na…",
+        options: [
+          "Štruktúru stránky (nadpisy, odseky, odkazy)",
+          "Farby a písmo",
+          "Animácie tlačidiel",
+          "Ukladanie hesiel",
+        ],
+        correctIndex: 0,
+        explanation: "HTML hovorí, čo na stránke je.",
+      },
+      {
+        id: "q2",
+        question: "CSS určuje…",
+        options: [
+          "Ako stránka vyzerá",
+          "IP adresu servera",
+          "Veľkosť RAM",
+          "Typ procesora",
+        ],
+        correctIndex: 0,
+        explanation: "Farby, písmo, rozloženie — to je CSS.",
+      },
+      {
+        id: "q3",
+        question: "JavaScript pridáva…",
+        options: [
+          "Interaktivitu (klik, výpočty, dynamický obsah)",
+          "Len obrázky",
+          "Len káble",
+          "Len heslá",
+        ],
+        correctIndex: 0,
+        explanation: "Bez JS je stránka statická ako papier.",
+      },
+    ],
+  },
+  {
+    id: "ai-basics",
+    order: 15,
+    title: "Umelá inteligencia",
+    shortTitle: "AI",
+    description:
+      "AI hľadá vzory v dátach a predvída. Model nie je mágia — učí sa z príkladov.",
+    guideIntro:
+      "Model je ako žiak, ktorý videl veľa príkladov. Vie tipovať, ale môže sa mýliť.",
+    task: "Pošli tri krátke otázky modelu a porovnaj, kedy si je istý a kedy háda.",
+    taskHint: "Klikni na karty otázok. Sleduj „istotu“ odpovede.",
+    badge: "Prieskumník AI",
+    accent: "#7C3AED",
+    quiz: [
+      {
+        id: "q1",
+        question: "Čo AI robí najčastejšie?",
+        options: [
+          "Hľadá vzory a predvída ďalší krok",
+          "Vymieňa RAM",
+          "Kreslí káble",
+          "Vypína router",
+        ],
+        correctIndex: 0,
+        explanation: "Učí sa z dát, nie z čarov.",
+      },
+      {
+        id: "q2",
+        question: "Prečo AI niekedy vymýšľa (halucinuje)?",
+        options: [
+          "Tipuje pravdepodobné slová, aj keď fakt nevie",
+          "Má vírus",
+          "Málo RAM",
+          "Je vypnutý monitor",
+        ],
+        correctIndex: 0,
+        explanation: "Preto overuj dôležité odpovede.",
+      },
+      {
+        id: "q3",
+        question: "Dobré použitie AI v škole je…",
+        options: [
+          "Vysvetliť látku a potom si to overiť",
+          "Odoslať celú písomku bez čítania",
+          "Zdieľať heslá",
+          "Vypnúť antivírus",
+        ],
+        correctIndex: 0,
+        explanation: "AI je nástroj — ty ostávaš autorom práce.",
+      },
+    ],
+  },
+]
+
+export function getLesson(id: string) {
+  return LESSONS.find((l) => l.id === id)
+}
+
+export function getNextLesson(id: string) {
+  const current = getLesson(id)
+  if (!current) return undefined
+  return LESSONS.find((l) => l.order === current.order + 1)
+}

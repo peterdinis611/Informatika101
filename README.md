@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Informatika 101 — Virtuálny počítač
 
-## Getting Started
+Interaktívny **3D lab** po slovensky. Namiesto slidov otváraš počítač, klikáš na diely, sleduješ tok dát a overíš si to krátkym kvízom.
 
-First, run the development server:
+15 voľných lekcií · light / dark · bez účtu · postup v prehliadači
+
+<p align="center">
+  <img src="docs/screenshots/landing-dark.png" alt="Landing — dark mode" width="860" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/landing-light.png" alt="Landing — light mode" width="860" />
+</p>
+
+---
+
+## Čo to je
+
+Žiaci a začiatočníci si môžu **ohmatať** hardvér, bity, CPU, sieť, kód aj bezpečnosť v toon 3D scéne:
+
+- klik na diel = detail + zoom kamery  
+- skladanie / odoberanie častí  
+- úloha v každej lekcii + mini kvíz  
+- light & dark mode  
+- postup uložený v `localStorage` (Zustand)
+
+<p align="center">
+  <img src="docs/screenshots/lesson-intro-light.png" alt="Lekcia Úvod — light" width="860" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/lesson-intro-dark.png" alt="Lekcia Úvod — dark" width="860" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/lesson-hardware-dark.png" alt="Lekcia Hardvér — dark" width="860" />
+</p>
+
+---
+
+## Stack
+
+| Vrstva | Technológia |
+| --- | --- |
+| App | Next.js 16 (App Router) · React 19 · TypeScript |
+| UI | Tailwind CSS v4 · shadcn/ui · next-themes |
+| 3D | Three.js · React Three Fiber · Drei |
+| Stav | Zustand (postup lekcií) |
+
+---
+
+## Spustenie
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otvor [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build && npm start   # produkcia
+npm run lint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Navigácia
 
-To learn more about Next.js, take a look at the following resources:
+| Cesta | Obsah |
+| --- | --- |
+| `/` | Landing + 3D hero |
+| `/lesson/[id]` | Lab lekcie (3D + úloha + kvíz) |
+| `/lekcia/*` | Redirect na `/lesson/*` (legacy) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Príklad: [`/lesson/what-is-a-computer`](http://localhost:3000/lesson/what-is-a-computer)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Lekcie (15)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| # | ID | Téma |
+| ---: | --- | --- |
+| 01 | `what-is-a-computer` | Čo je počítač? |
+| 02 | `hardware` | Hardvér |
+| 03 | `bits-and-bytes` | Bity a bajty |
+| 04 | `cpu` | Procesor |
+| 05 | `memory` | Pamäť |
+| 06 | `operating-system` | Operačný systém |
+| 07 | `logic-gates` | Logické hradlá |
+| 08 | `networking` | Sieť |
+| 09 | `programming` | Základy kódu |
+| 10 | `security` | Bezpečnosť |
+| 11 | `files-and-folders` | Súbory |
+| 12 | `algorithms` | Algoritmy |
+| 13 | `databases` | Databázy |
+| 14 | `web-and-html` | Web |
+| 15 | `ai-basics` | AI |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Každá lekcia má 3D scénu, úlohu a kvíz (typicky aspoň 2/3 na odomknutie ďalšej).
+
+---
+
+## Štruktúra projektu
+
+```
+src/
+  app/                 # routes, SEO, loading
+  components/
+    lab/               # landing, rail, spinner, shell
+    scenes/            # 3D scény lekcií
+    three/             # Canvas3D, inspect, kamera
+  data/                # lekcie + lab diely
+  lib/                 # store, SEO, utils
+docs/screenshots/      # náhľady do README
+```
+
+---
+
+## Poznámky k UX
+
+- **Fullscreen spinner** kým sa WebGL scéna nenakreslí (celá appka).  
+- Zmena light/dark **nepremountuje** canvas — mení sa len pozadie a materiály.  
+- Progressive loading hero 3D na landingu (`requestIdleCallback` + dynamic import).
+
+---
+
+## Licencia
+
+Private / školský projekt — uprav podľa potreby.
