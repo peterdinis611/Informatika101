@@ -1,0 +1,158 @@
+import type { Dictionary } from "./sk"
+
+export const cs: Dictionary = {
+  brand: {
+    name: "Informatika 101",
+    tagline: "Hravá 3D laboratoř informatiky pro začátečníky",
+    toyLab: "Toy lab · zdarma",
+  },
+  nav: {
+    home: "Domů",
+    lessons: "Lekce",
+    lab: "Laboratoř",
+    start: "Start",
+    how: "Jak",
+    help: "Nápověda",
+    glossary: "Slovníček",
+    language: "Jazyk",
+  },
+  landing: {
+    brandMark: "Informatika · CS",
+    headline: "informatika",
+    subhead: "Otevři počítač. Ne slidové prezentace.",
+    lead: "{count} volných 3D lekcí — hardware, bity, síť, kód.",
+    startFirst: "Začít první lekci",
+    continueWith: "Pokračovat · {title}",
+    doneCount: "{done}/{total} hotových",
+    clickHint: "Klikni na díl ve 3D",
+    howTitle: "Jak to funguje",
+    howLead: "Čtyři kroky. Žádné slidové monology.",
+    lessonsTitle: "Lekce",
+    lessonsLead: "{count} lekcí · jedna cesta",
+    ctaTitle: "Všechny lekce",
+    ctaTitleLine2: "jsou volné.",
+    ctaBody:
+      "{task} Účet nepotřebuješ — postup zůstane v tomto prohlížeči.",
+    footer: "informatika 101 · {count} lekcí · zdarma",
+    loadingScene: "Načítám 3D scénu…",
+    steps: [
+      {
+        n: "01",
+        title: "Klikni na díl",
+        body: "Každý blok ve 3D je součást počítače. Otevřeš detail a přiblížení.",
+      },
+      {
+        n: "02",
+        title: "Skládej a zkoušej",
+        body: "Přidáváš nebo bereš díly. Co není na stole, v labu neexistuje.",
+      },
+      {
+        n: "03",
+        title: "Sleduj tok dat",
+        body: "Vstup → procesor → paměť → výstup. Vidíš, kudy jdou bity.",
+      },
+      {
+        n: "04",
+        title: "Tři otázky",
+        body: "Krátký kvíz. Odznak zůstane v prohlížeči. Účet nepotřebuješ.",
+      },
+    ],
+  },
+  help: {
+    title: "Nápověda",
+    description: "Jak se pohybovat v laboratoři Informatika 101",
+    mouse: "Myš:",
+    mouseBody: "tažením otáčíš 3D scénu, kolečkem přibližuješ.",
+    click: "Klik:",
+    clickBody: "na součásti zobrazí vysvětlení v pravém panelu.",
+    lessons: "Lekce:",
+    lessonsBody:
+      "všechny jsou volné (free-explore). Kvíz (alespoň 2/3) dává body a odznak, ne zámek.",
+    controls: "Ovládání:",
+    controlsBody: "přepínače a tlačítka v panelu vpravo mění 3D scénu.",
+    hintTitle: "Tip k této lekci",
+  },
+  glossary: {
+    title: "Slovníček pojmů",
+    description:
+      "Krátká vysvětlení slov z lekcí. Z 3D detailu můžeš skočit přímo sem.",
+  },
+  quiz: {
+    title: "Mini kvíz",
+    intro:
+      "Odpověz na 3 otázky. Na odznak a body potřebuješ alespoň {pass}/3 správně. Všechny lekce jsou už volné — skákej kam chceš.",
+    lastScore: "Poslední výsledek: {score}/3.",
+    check: "Zkontrolovat odpovědi",
+    result: "Výsledek: {score}/3.",
+    badge: "Výborně! Získáváš odznak „{badge}“.",
+    retryHint: "Zkus to znovu — kvíz můžeš opakovat.",
+    retry: "Zkusit znovu",
+  },
+  checkpoint: {
+    title: "Rychlá kontrola",
+    verify: "Ověřit",
+    done: "Kontrola splněna. {explanation}",
+    retry: "Zkusit znovu",
+  },
+  lesson: {
+    task: "Tvůj úkol",
+    taskDone: "Úkol hotový",
+    checkDone: "Kontrola",
+    completed: "Splněno",
+    tabLab: "Úkol",
+    tabSchema: "Schéma",
+    tabInfo: "Info",
+    tabQuiz: "Kvíz",
+    sceneControls: "Ovládání scény",
+    tip: "Tip",
+    guide: "Průvodce Byte",
+    readAloud: "Přečíst",
+    selection: "Výběr / měření",
+    terms: "Pojmy z této lekce",
+    quizGate:
+      "Nejdřív splň úkol ve 3D (záložka Úkol) a rychlou kontrolu. Pak půjde kvíz snáz.",
+    nextLesson: "Další lekce",
+    controls: "Ovládání",
+    a11y: "Přístupnost",
+    lowPower: "Lehký režim (bez 3D)",
+    reduceMotion: "Méně animací",
+    taskCompleteQuiz: "Úkol splněn! Teď zkus mini kvíz v panelu vpravo.",
+    taskCompleteCheck: "Úkol splněn! Ještě rychlá kontrola v panelu Úkol.",
+    passedNext:
+      "Gratuluji! Můžeš pokračovat na „{title}“ — nebo skákej kam chceš, všechny lekce jsou volné.",
+    passedAll: "Hotovo! Prošel/a jsi všechny lekce.",
+    parts: "Díly:",
+    lowPowerTitle: "2D režim bez WebGL",
+    lowPowerBody:
+      "Lehký režim — schéma místo 3D. Ovládání v panelu vpravo funguje stejně.",
+  },
+  detail: {
+    zoom: "Zoom · Detail",
+    back: "Zpět na přehled",
+    glossary: "Slovníček: {term}",
+  },
+  canvas: {
+    zoomIn: "Přiblížit",
+    zoomOut: "Oddálit",
+    resetView: "Obnovit pohled",
+    overview: "Přehled",
+    fullscreen: "Celá obrazovka",
+    detailOpen: "Detail otevřený · klik mimo = zpět",
+    hint: "Klikni na díl = detail + zoom · táhni = toč",
+    loading: "Načítám 3D scénu…",
+  },
+  hub: {
+    mascot:
+      "Ahoj! Jsem Byte. Všechny lekce jsou odemčené — skákej kam chceš. Ve 3D si díly přidávej a odebírej!",
+    reset: "Resetovat postup",
+    progress: "{done}/{total} lekcí",
+  },
+  common: {
+    points: "{n} b",
+    close: "Zavřít",
+  },
+  noscript: {
+    title: "Informatika 101 — Virtuální počítač",
+    body: "Interaktivní 3D kurz informatiky. {count} volných lekcí bez registrace.",
+  },
+}

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
+import { defaultLocale } from "@/i18n/config"
 
-/** Legacy Slovak route → English `/lesson/[id]` */
+/** Legacy Slovak slug route → localized `/[locale]/lesson/[id]` */
 const LEGACY: Record<string, string> = {
   "co-je-pocitac": "what-is-a-computer",
   hardware: "hardware",
@@ -28,5 +29,5 @@ type Props = { params: Promise<{ id: string }> }
 export default async function LegacyLessonRedirect({ params }: Props) {
   const { id } = await params
   const next = LEGACY[id] ?? id
-  redirect(`/lesson/${next}`)
+  redirect(`/${defaultLocale}/lesson/${next}`)
 }

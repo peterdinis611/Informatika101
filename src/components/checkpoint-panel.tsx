@@ -4,6 +4,7 @@ import { useState } from "react"
 import { CheckCircle2, XCircle } from "lucide-react"
 import type { Checkpoint } from "@/data/checkpoints"
 import { useProgressStore } from "@/lib/store"
+import { useI18n } from "@/i18n/provider"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +15,7 @@ export function CheckpointPanel({
   lessonId: string
   checkpoint: Checkpoint
 }) {
+  const { dict, t } = useI18n()
   const done = useProgressStore((s) => s.checkpoints[lessonId])
   const completeCheckpoint = useProgressStore((s) => s.completeCheckpoint)
   const [choice, setChoice] = useState<number | null>(null)
@@ -32,7 +34,7 @@ export function CheckpointPanel({
   return (
     <div className="rounded-xl border border-border/80 bg-card/60 p-3">
       <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        Rýchla kontrola
+        {dict.checkpoint.title}
       </p>
       <p className="mb-2 text-sm font-medium">{checkpoint.question}</p>
       <div className="grid gap-1.5">
@@ -48,10 +50,17 @@ export function CheckpointPanel({
               onClick={() => setChoice(oi)}
               className={cn(
                 "rounded-lg border px-3 py-2 text-left text-sm transition",
-                !show && isChosen && "border-teal-500 bg-teal-50 dark:bg-teal-950",
+                !show &&
+                  isChosen &&
+                  "border-teal-500 bg-teal-50 dark:bg-teal-950",
                 !show && !isChosen && "hover:bg-muted",
-                show && isCorrect && "border-emerald-500 bg-emerald-50 dark:bg-emerald-950",
-                show && isChosen && !isCorrect && "border-red-400 bg-red-50 dark:bg-red-950"
+                show &&
+                  isCorrect &&
+                  "border-emerald-500 bg-emerald-50 dark:bg-emerald-950",
+                show &&
+                  isChosen &&
+                  !isCorrect &&
+                  "border-red-400 bg-red-50 dark:bg-red-950"
               )}
             >
               <span className="inline-flex items-center gap-2">
@@ -69,7 +78,7 @@ export function CheckpointPanel({
       </div>
       {done ? (
         <p className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-          Kontrola splnená. {checkpoint.explanation}
+          {t(dict.checkpoint.done, { explanation: checkpoint.explanation })}
         </p>
       ) : !submitted ? (
         <Button
@@ -78,7 +87,7 @@ export function CheckpointPanel({
           disabled={choice === null}
           onClick={submit}
         >
-          Overiť
+          {dict.checkpoint.verify}
         </Button>
       ) : (
         <div className="mt-2 space-y-2">
@@ -92,7 +101,7 @@ export function CheckpointPanel({
                 setChoice(null)
               }}
             >
-              Skúsiť znova
+              {dict.checkpoint.retry}
             </Button>
           )}
         </div>

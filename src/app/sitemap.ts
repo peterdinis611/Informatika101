@@ -1,21 +1,28 @@
 import type { MetadataRoute } from "next"
-import { LESSONS } from "@/data/lessons"
+import { getLessons } from "@/data/lessons"
+import { locales } from "@/i18n/config"
 import { SITE_URL } from "@/lib/seo"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
-  return [
-    {
-      url: SITE_URL,
+  const entries: MetadataRoute.Sitemap = []
+
+  for (const locale of locales) {
+    entries.push({
+      url: `${SITE_URL}/${locale}`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
-    },
-    ...LESSONS.map((lesson) => ({
-      url: `${SITE_URL}/lesson/${lesson.id}`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
-  ]
+    })
+    for (const lesson of getLessons(locale)) {
+      entries.push({
+        url: `${SITE_URL}/${locale}/lesson/${lesson.id}`,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.8,
+      })
+    }
+  }
+
+  return entries
 }

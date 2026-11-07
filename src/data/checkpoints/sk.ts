@@ -1,13 +1,7 @@
-export type Checkpoint = {
-  id: string
-  question: string
-  options: string[]
-  correctIndex: number
-  explanation: string
-}
+import type { Checkpoint } from "./types"
 
 /** Mid-lesson formative check — one per lesson, before the final quiz. */
-export const CHECKPOINTS: Record<string, Checkpoint> = {
+export const CHECKPOINTS_SK: Record<string, Checkpoint> = {
   "what-is-a-computer": {
     id: "cp-intro",
     question: "V akom poradí ide tok dát v počítači?",

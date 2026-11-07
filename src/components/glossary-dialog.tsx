@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import { BookMarked } from "lucide-react"
-import { GLOSSARY } from "@/data/glossary"
+import { getGlossary } from "@/data/glossary"
 import { GLOSSARY_OPEN_EVENT } from "@/lib/glossary-events"
+import { useI18n } from "@/i18n/provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,9 +18,12 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 export function GlossaryDialog({ iconOnly = false }: { iconOnly?: boolean }) {
+  const { locale, dict } = useI18n()
   const [open, setOpen] = useState(false)
   const [highlightId, setHighlightId] = useState<string | null>(null)
-  const terms = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term, "sk"))
+  const terms = [...getGlossary(locale)].sort((a, b) =>
+    a.term.localeCompare(b.term, locale)
+  )
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   useEffect(() => {
@@ -56,40 +60,39 @@ export function GlossaryDialog({ iconOnly = false }: { iconOnly?: boolean }) {
           <Button
             variant={iconOnly ? "ghost" : "outline"}
             size={iconOnly ? "icon" : "sm"}
-            aria-label="Slovníček"
+            aria-label={dict.nav.glossary}
           />
         }
       >
         <BookMarked className="size-4" />
-        {!iconOnly && "Slovníček"}
+        {!iconOnly && dict.nav.glossary}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Slovníček pojmov</DialogTitle>
-          <DialogDescription>
-            Krátke vysvetlenia slov z lekcií. Z 3D detailu môžeš skočiť priamo
-            sem.
-          </DialogDescription>
+          <DialogTitle>{dict.glossary.title}</DialogTitle>
+          <DialogDescription>{dict.glossary.description}</DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[50vh] pr-3">
           <dl className="space-y-3">
-            {terms.map((t) => (
+            {terms.map((term) => (
               <div
-                key={t.id}
-                id={`glossary-${t.id}`}
+                key={term.id}
+                id={`glossary-${term.id}`}
                 ref={(node) => {
-                  itemRefs.current[t.id] = node
+                  itemRefs.current[term.id] = node
                 }}
                 className={cn(
                   "border-b border-border/60 pb-2 transition",
-                  highlightId === t.id &&
+                  highlightId === term.id &&
                     "rounded-lg border border-accent/40 bg-accent/10 px-2 pt-2"
                 )}
               >
                 <dt className="font-heading font-semibold text-primary">
-                  {t.term}
+                  {term.term}
                 </dt>
-                <dd className="text-sm text-muted-foreground">{t.definition}</dd>
+                <dd className="text-sm text-muted-foreground">
+                  {term.definition}
+                </dd>
               </div>
             ))}
           </dl>

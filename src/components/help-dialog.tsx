@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useI18n } from "@/i18n/provider"
 
 export function HelpDialog({
   hint,
@@ -18,6 +19,8 @@ export function HelpDialog({
   hint?: string
   iconOnly?: boolean
 }) {
+  const { dict } = useI18n()
+
   return (
     <Dialog>
       <DialogTrigger
@@ -25,41 +28,39 @@ export function HelpDialog({
           <Button
             variant={iconOnly ? "ghost" : "outline"}
             size={iconOnly ? "icon" : "sm"}
-            aria-label="Pomoc"
+            aria-label={dict.nav.help}
           />
         }
       >
         <HelpCircle className="size-4" />
-        {!iconOnly && "Pomoc"}
+        {!iconOnly && dict.nav.help}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Pomoc a nápoveda</DialogTitle>
-          <DialogDescription>
-            Ako sa pohybovať v laborke Informatika 101
-          </DialogDescription>
+          <DialogTitle>{dict.help.title}</DialogTitle>
+          <DialogDescription>{dict.help.description}</DialogDescription>
         </DialogHeader>
         <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
           <li>
-            <strong className="text-foreground">Myš:</strong> ťahaním otáčaš 3D
-            scénu, kolieskom približuješ.
+            <strong className="text-foreground">{dict.help.mouse}</strong>{" "}
+            {dict.help.mouseBody}
           </li>
           <li>
-            <strong className="text-foreground">Klik:</strong> na súčasti
-            zobrazí vysvetlenie v pravom paneli.
+            <strong className="text-foreground">{dict.help.click}</strong>{" "}
+            {dict.help.clickBody}
           </li>
           <li>
-            <strong className="text-foreground">Lekcie:</strong> všetky sú voľné
-            (free-explore). Kvíz (aspoň 2/3) dáva body a odznak, nie zámok.
+            <strong className="text-foreground">{dict.help.lessons}</strong>{" "}
+            {dict.help.lessonsBody}
           </li>
           <li>
-            <strong className="text-foreground">Ovládanie:</strong> prepínače
-            a tlačidlá v paneli vpravo menia 3D scénu.
+            <strong className="text-foreground">{dict.help.controls}</strong>{" "}
+            {dict.help.controlsBody}
           </li>
         </ul>
         {hint && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-            <p className="font-medium">Nápoveda k tejto lekcii</p>
+            <p className="font-medium">{dict.help.hintTitle}</p>
             <p>{hint}</p>
           </div>
         )}

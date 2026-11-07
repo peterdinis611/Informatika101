@@ -1,0 +1,158 @@
+import type { Dictionary } from "./sk"
+
+export const en: Dictionary = {
+  brand: {
+    name: "Computer Science 101",
+    tagline: "A playful 3D computer lab for beginners",
+    toyLab: "Toy lab · free",
+  },
+  nav: {
+    home: "Home",
+    lessons: "Lessons",
+    lab: "Lab",
+    start: "Start",
+    how: "How",
+    help: "Help",
+    glossary: "Glossary",
+    language: "Language",
+  },
+  landing: {
+    brandMark: "CS · EN",
+    headline: "computer science",
+    subhead: "Open the computer. Not slides.",
+    lead: "{count} free 3D lessons — hardware, bits, networks, code.",
+    startFirst: "Start the first lesson",
+    continueWith: "Continue · {title}",
+    doneCount: "{done}/{total} done",
+    clickHint: "Click a part in 3D",
+    howTitle: "How it works",
+    howLead: "Four steps. No slide monologues.",
+    lessonsTitle: "Lessons",
+    lessonsLead: "{count} lessons · one path",
+    ctaTitle: "Every lesson",
+    ctaTitleLine2: "is open.",
+    ctaBody:
+      "{task} No account needed — progress stays in this browser.",
+    footer: "cs 101 · {count} lessons · free",
+    loadingScene: "Loading 3D scene…",
+    steps: [
+      {
+        n: "01",
+        title: "Click a part",
+        body: "Every 3D block is a computer part. Open a detail and zoom in.",
+      },
+      {
+        n: "02",
+        title: "Build and try",
+        body: "Add or remove parts. What isn’t on the table doesn’t exist in the lab.",
+      },
+      {
+        n: "03",
+        title: "Watch data flow",
+        body: "Input → CPU → memory → output. See where the bits go.",
+      },
+      {
+        n: "04",
+        title: "Three questions",
+        body: "A short quiz. The badge stays in the browser. No account needed.",
+      },
+    ],
+  },
+  help: {
+    title: "Help & tips",
+    description: "How to move around the Computer Science 101 lab",
+    mouse: "Mouse:",
+    mouseBody: "drag to orbit the 3D scene, scroll to zoom.",
+    click: "Click:",
+    clickBody: "a part shows an explanation in the right panel.",
+    lessons: "Lessons:",
+    lessonsBody:
+      "all are free (free-explore). The quiz (at least 2/3) gives points and a badge, not a lock.",
+    controls: "Controls:",
+    controlsBody: "toggles and buttons in the right panel change the 3D scene.",
+    hintTitle: "Tip for this lesson",
+  },
+  glossary: {
+    title: "Glossary",
+    description:
+      "Short explanations from the lessons. Jump here straight from a 3D detail.",
+  },
+  quiz: {
+    title: "Mini quiz",
+    intro:
+      "Answer 3 questions. You need at least {pass}/3 correct for a badge and points. Every lesson is already open — jump wherever you like.",
+    lastScore: "Last score: {score}/3.",
+    check: "Check answers",
+    result: "Score: {score}/3.",
+    badge: "Great! You earn the “{badge}” badge.",
+    retryHint: "Try again — you can retake the quiz.",
+    retry: "Try again",
+  },
+  checkpoint: {
+    title: "Quick check",
+    verify: "Check",
+    done: "Check complete. {explanation}",
+    retry: "Try again",
+  },
+  lesson: {
+    task: "Your task",
+    taskDone: "Task done",
+    checkDone: "Check",
+    completed: "Completed",
+    tabLab: "Task",
+    tabSchema: "Schema",
+    tabInfo: "Info",
+    tabQuiz: "Quiz",
+    sceneControls: "Scene controls",
+    tip: "Tip",
+    guide: "Guide Byte",
+    readAloud: "Read aloud",
+    selection: "Selection / readout",
+    terms: "Terms from this lesson",
+    quizGate:
+      "First finish the 3D task (Task tab) and the quick check. Then the quiz will be easier.",
+    nextLesson: "Next lesson",
+    controls: "Controls",
+    a11y: "Accessibility",
+    lowPower: "Light mode (no 3D)",
+    reduceMotion: "Fewer animations",
+    taskCompleteQuiz: "Task complete! Now try the mini quiz on the right.",
+    taskCompleteCheck: "Task complete! Still need the quick check on the Task tab.",
+    passedNext:
+      "Congrats! Continue to “{title}” — or jump anywhere; every lesson is free.",
+    passedAll: "Done! You finished every lesson.",
+    parts: "Parts:",
+    lowPowerTitle: "2D mode without WebGL",
+    lowPowerBody:
+      "Light mode — schema instead of 3D. Controls on the right still work the same.",
+  },
+  detail: {
+    zoom: "Zoom · Detail",
+    back: "Back to overview",
+    glossary: "Glossary: {term}",
+  },
+  canvas: {
+    zoomIn: "Zoom in",
+    zoomOut: "Zoom out",
+    resetView: "Reset view",
+    overview: "Overview",
+    fullscreen: "Fullscreen",
+    detailOpen: "Detail open · click outside to go back",
+    hint: "Click a part = detail + zoom · drag = orbit",
+    loading: "Loading 3D scene…",
+  },
+  hub: {
+    mascot:
+      "Hi! I'm Byte. Every lesson is unlocked — jump wherever you like. Add and remove parts in 3D!",
+    reset: "Reset progress",
+    progress: "{done}/{total} lessons",
+  },
+  common: {
+    points: "{n} pts",
+    close: "Close",
+  },
+  noscript: {
+    title: "Computer Science 101 — Virtual computer",
+    body: "An interactive 3D computer-science course. {count} free lessons, no sign-up.",
+  },
+}

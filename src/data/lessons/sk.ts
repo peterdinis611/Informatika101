@@ -1,26 +1,6 @@
-export type QuizQuestion = {
-  id: string
-  question: string
-  options: string[]
-  correctIndex: number
-  explanation: string
-}
+import type { Lesson } from "./types"
 
-export type Lesson = {
-  id: string
-  order: number
-  title: string
-  shortTitle: string
-  description: string
-  guideIntro: string
-  task: string
-  taskHint: string
-  badge: string
-  accent: string
-  quiz: QuizQuestion[]
-}
-
-export const LESSONS: Lesson[] = [
+export const LESSONS_SK: Lesson[] = [
   {
     id: "what-is-a-computer",
     order: 1,
@@ -763,13 +743,3 @@ export const LESSONS: Lesson[] = [
     ],
   },
 ]
-
-export function getLesson(id: string) {
-  return LESSONS.find((l) => l.id === id)
-}
-
-export function getNextLesson(id: string) {
-  const current = getLesson(id)
-  if (!current) return undefined
-  return LESSONS.find((l) => l.order === current.order + 1)
-}

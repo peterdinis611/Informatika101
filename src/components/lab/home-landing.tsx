@@ -5,9 +5,12 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, ArrowUpRight, MousePointer2 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { ConfettiOnView } from "@/components/lab/confetti"
 import { useSceneLoadingLock } from "@/components/lab/scene-loading"
-import { LESSONS } from "@/data/lessons"
+import { getLessons } from "@/data/lessons"
+import type { Locale } from "@/i18n/config"
+import { useI18n } from "@/i18n/provider"
 import { lessonPath } from "@/lib/routes"
 import { useProgressStore } from "@/lib/store"
 
@@ -22,30 +25,15 @@ const HomeSceneCanvas = dynamic(
   }
 )
 
-const STEPS = [
-  {
-    n: "01",
-    title: "Klikni na diel",
-    body: "Každý blok v 3D je súčasť počítača. Otvoríš detail a priblíženie.",
-  },
-  {
-    n: "02",
-    title: "Skladaj a skúšaj",
-    body: "Pridávaš alebo berieš diely. Čo nie je na stole, v labe neexistuje.",
-  },
-  {
-    n: "03",
-    title: "Sleduj tok dát",
-    body: "Vstup → procesor → pamäť → výstup. Vidíš, kadiaľ idú bity.",
-  },
-  {
-    n: "04",
-    title: "Tri otázky",
-    body: "Krátky kvíz. Odznak ostane v prehliadači. Účet nepotrebuješ.",
-  },
-]
-
-export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
+export function HomeLanding({
+  firstLessonId,
+  locale: localeProp,
+}: {
+  firstLessonId: string
+  locale: Locale
+}) {
+  const { locale, dict, t } = useI18n()
+  const lessons = getLessons(localeProp ?? locale)
   const completed = useProgressStore((s) => s.completedLessons)
   const [hydrated, setHydrated] = useState(false)
   const [hero3d, setHero3d] = useState(false)
@@ -55,7 +43,7 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
   const spotlight = useRef<HTMLDivElement>(null)
 
   // Hold fullscreen spinner until Canvas3D paints (covers idle delay + WebGL init).
-  useSceneLoadingLock(!sceneReady, "Načítavam 3D scénu…")
+  useSceneLoadingLock(!sceneReady, dict.landing.loadingScene)
 
   useEffect(() => setHydrated(true), [])
 
@@ -94,14 +82,15 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
     return () => hero.removeEventListener("pointermove", onMove)
   }, [])
 
-  const next = LESSONS.find((l) => !completed.includes(l.id)) ?? LESSONS[0]
-  const startHref = lessonPath(hydrated ? next : firstLessonId)
+  const next = lessons.find((l) => !completed.includes(l.id)) ?? lessons[0]
+  const startHref = lessonPath(hydrated ? next : firstLessonId, locale)
   const doneCount = hydrated ? completed.length : 0
   const startLabel =
     hydrated && completed.length > 0
-      ? `Pokračovať · ${next.shortTitle}`
-      : "Začať prvú lekciu"
-  const featured = LESSONS[activeLesson] ?? LESSONS[0]
+      ? t(dict.landing.continueWith, { title: next.shortTitle })
+      : dict.landing.startFirst
+  const featured = lessons[activeLesson] ?? lessons[0]
+  const steps = dict.landing.steps
 
   return (
     <div className="landing min-h-dvh">
@@ -137,10 +126,10 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
         <div className="relative z-20 flex min-h-dvh flex-col">
           <header className="flex items-center justify-between gap-4 px-5 pt-5 md:px-8 md:pt-7">
             <p className="font-heading text-[13px] font-bold uppercase tracking-[0.22em] text-[var(--land-ink)]/55">
-              Informatika · SK
+              {dict.landing.brandMark}
             </p>
             <nav
-              aria-label="Hlavná navigácia"
+              aria-label={dict.nav.home}
               className="flex items-center gap-1 rounded-full px-1 py-1 text-[14px] font-semibold shadow-sm backdrop-blur-sm"
               style={{ background: "var(--land-nav)" }}
             >
@@ -148,36 +137,36 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
                 href="#ako"
                 className="rounded-full px-3 py-1.5 transition hover:bg-[var(--land-ink)]/8"
               >
-                Ako
+                {dict.nav.how}
               </a>
               <a
                 href="#lessons"
                 className="rounded-full px-3 py-1.5 transition hover:bg-[var(--land-ink)]/8"
               >
-                Lekcie
+                {dict.nav.lessons}
               </a>
               <Link
                 href={startHref}
                 className="rounded-full px-3 py-1.5 transition hover:bg-[var(--land-ink)]/8"
               >
-                Štart
+                {dict.nav.start}
               </Link>
+              <LanguageSwitcher iconOnly />
               <ThemeToggle />
             </nav>
           </header>
 
           <div className="mt-auto flex max-w-xl flex-col px-5 pb-8 pt-8 md:px-8 md:pb-12">
             <p className="landing-reveal font-heading text-[clamp(2.2rem,6.2vw,4.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em] text-[var(--land-ink)]">
-              informatika{" "}
+              {dict.landing.headline}{" "}
               <span className="text-[var(--land-accent)]">101</span>
             </p>
 
             <h1 className="landing-reveal landing-d1 mt-4 font-heading text-[clamp(1.15rem,2.4vw,1.55rem)] font-semibold leading-snug tracking-[-0.02em] text-[var(--land-ink)]">
-              Otvor počítač. Nie slidy.
+              {dict.landing.subhead}
             </h1>
             <p className="landing-reveal landing-d1 mt-2 max-w-[34ch] text-[15px] leading-relaxed text-[var(--land-muted)]">
-              {LESSONS.length} voľných 3D lekcií po slovensky — hardvér, bity,
-              sieť, kód.
+              {t(dict.landing.lead, { count: lessons.length })}
             </p>
 
             <div className="landing-reveal landing-d2 mt-5 flex flex-wrap items-center gap-3">
@@ -187,11 +176,14 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
               </Link>
               <p className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--land-muted)]">
                 <MousePointer2 className="size-3.5" />
-                Ťahaj scénu · klikni diely v labe
+                {dict.landing.clickHint}
               </p>
               {doneCount > 0 && (
                 <p className="text-[13px] font-medium text-[var(--land-muted)]">
-                  {doneCount}/{LESSONS.length} hotových
+                  {t(dict.landing.doneCount, {
+                    done: doneCount,
+                    total: lessons.length,
+                  })}
                 </p>
               )}
             </div>
@@ -208,11 +200,11 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
             Postup
           </p>
           <h2 className="mt-2 max-w-[16ch] font-heading text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-[1.05] tracking-[-0.03em]">
-            Štyri kroky. Žiadne slidy.
+            {dict.landing.howLead}
           </h2>
 
           <ol className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step) => (
+            {steps.map((step) => (
               <li key={step.n} className="landing-step relative">
                 <span className="font-mono text-[13px] font-semibold text-[var(--land-accent)]">
                   {step.n}
@@ -244,7 +236,7 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
             </p>
 
             <div className="mt-6 flex flex-wrap gap-1.5">
-              {LESSONS.map((lesson, i) => {
+              {lessons.map((lesson, i) => {
                 const done = hydrated && completed.includes(lesson.id)
                 const on = i === activeLesson
                 return (
@@ -288,13 +280,13 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
               {featured.description}
             </p>
             <p className="mt-4 text-[13px] font-medium text-[var(--land-deep-ink)]/85">
-              Úloha: {featured.task}
+              {dict.lesson.task}: {featured.task}
             </p>
             <Link
-              href={lessonPath(featured)}
+              href={lessonPath(featured, locale)}
               className="landing-cta landing-cta-invert mt-6 inline-flex"
             >
-              Otvoriť lab
+              {dict.nav.lab}
               <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -312,12 +304,15 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
                 Osnova
               </p>
               <h2 className="mt-2 font-heading text-[clamp(1.85rem,4vw,2.75rem)] font-bold leading-[0.95] tracking-[-0.03em]">
-                {LESSONS.length} lekcií · jedna cesta
+                {t(dict.landing.lessonsLead, { count: lessons.length })}
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-4">
               <p className="font-mono text-[12px] font-semibold text-[var(--land-accent)]">
-                {doneCount}/{LESSONS.length} hotových
+                {t(dict.landing.doneCount, {
+                  done: doneCount,
+                  total: lessons.length,
+                })}
               </p>
               <Link href={startHref} className="landing-cta landing-cta-invert">
                 {startLabel}
@@ -327,12 +322,12 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
           </div>
 
           <ol className="mt-8 grid gap-px overflow-hidden rounded-2xl bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-            {LESSONS.map((lesson, i) => {
+            {lessons.map((lesson, i) => {
               const done = hydrated && completed.includes(lesson.id)
               return (
                 <li key={lesson.id} className="bg-[var(--land-deep-panel)]">
                   <Link
-                    href={lessonPath(lesson)}
+                    href={lessonPath(lesson, locale)}
                     prefetch={i < 3}
                     onMouseEnter={() => setActiveLesson(i)}
                     className="landing-lesson group relative flex h-full min-h-[6rem] flex-col justify-between gap-3 p-4"
@@ -374,13 +369,12 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
         <div className="mx-auto flex max-w-3xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[0.95] tracking-[-0.03em]">
-              Všetky lekcie
+              {dict.landing.ctaTitle}
               <br />
-              sú voľné.
+              {dict.landing.ctaTitleLine2}
             </h2>
             <p className="mt-4 max-w-[36ch] text-[15px] leading-relaxed text-[#f0fffc]/85">
-              {LESSONS[0].task} Účet nepotrebuješ — postup ostane v tomto
-              prehliadači.
+              {t(dict.landing.ctaBody, { task: lessons[0].task })}
             </p>
           </div>
           <Link
@@ -397,9 +391,7 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
         id="koniec"
         className="flex flex-wrap items-center justify-between gap-4 bg-[var(--land-deep)] px-5 py-8 text-[13px] text-[var(--land-deep-muted)] md:px-8"
       >
-        <p>
-          informatika 101 · {LESSONS.length} lekcií · zadarmo
-        </p>
+        <p>{t(dict.landing.footer, { count: lessons.length })}</p>
         <Link
           href={startHref}
           className="font-semibold text-[var(--land-accent)] hover:underline"

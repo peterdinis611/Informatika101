@@ -1,11 +1,6 @@
-export type GlossaryTerm = {
-  id: string
-  term: string
-  definition: string
-  lessonId?: string
-}
+import type { GlossaryTerm } from "./types"
 
-export const GLOSSARY: GlossaryTerm[] = [
+export const GLOSSARY_SK: GlossaryTerm[] = [
   {
     id: "bit",
     term: "Bit",
@@ -217,11 +212,3 @@ export const GLOSSARY: GlossaryTerm[] = [
     lessonId: "what-is-a-computer",
   },
 ]
-
-export function getGlossaryTerm(id: string) {
-  return GLOSSARY.find((t) => t.id === id)
-}
-
-export function glossaryTermsForLesson(lessonId: string) {
-  return GLOSSARY.filter((t) => t.lessonId === lessonId)
-}

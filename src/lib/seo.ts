@@ -1,81 +1,68 @@
 import type { Metadata } from "next"
-import { LESSONS } from "@/data/lessons"
+import { getLessons } from "@/data/lessons"
+import { getDictionary, t } from "@/i18n/get-dictionary"
+import {
+  defaultLocale,
+  localeHtmlLang,
+  localeOg,
+  locales,
+  type Locale,
+} from "@/i18n/config"
+import { homePath, lessonPath } from "@/lib/routes"
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 
 export const SITE_NAME = "Informatika 101"
-export const SITE_TAGLINE = "Hravý 3D lab informatiky pre začiatočníkov"
-export const SITE_DESCRIPTION = `Interaktívny 3D kurz informatiky po slovensky. ${LESSONS.length} voľných lekcií: hardvér, bity, CPU, súbory, algoritmy, databázy, web aj AI. Bez registrácie.`
 
 export function absoluteUrl(path = "/") {
   return new URL(path, SITE_URL).toString()
 }
 
-const KEYWORDS = [
-  "informatika",
-  "informatika pre začiatočníkov",
-  "3D lab",
-  "virtuálny počítač",
-  "počítač",
-  "hardvér",
-  "CPU",
-  "bity a bajty",
-  "operačný systém",
-  "programovanie pre deti",
-  "algoritmy",
-  "databázy",
-  "HTML",
-  "CSS",
-  "JavaScript",
-  "siete",
-  "kybernetická bezpečnosť",
-  "umelá inteligencia",
-  "súbory a priečinky",
-  "slovensky",
-  ...LESSONS.map((l) => l.shortTitle),
-]
-
-const HOME_TITLE = `${SITE_NAME} — Virtuálny počítač`
 const OG_IMAGE = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: `${SITE_NAME} — ${SITE_TAGLINE}`,
   type: "image/png",
 } as const
+
+function languageAlternates(pathWithoutLocale: string) {
+  const languages: Record<string, string> = { "x-default": `/sk${pathWithoutLocale === "/" ? "" : pathWithoutLocale}` }
+  for (const locale of locales) {
+    languages[locale] =
+      pathWithoutLocale === "/"
+        ? `/${locale}`
+        : `/${locale}${pathWithoutLocale}`
+  }
+  return languages
+}
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: HOME_TITLE,
+    default: `${SITE_NAME} — Virtuálny počítač`,
     template: `%s · ${SITE_NAME}`,
   },
-  description: SITE_DESCRIPTION,
+  description: getDictionary(defaultLocale).brand.tagline,
   applicationName: SITE_NAME,
-  keywords: KEYWORDS,
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "education",
   formatDetection: { telephone: false, email: false, address: false },
   alternates: {
-    canonical: "/",
-    languages: { sk: "/", "x-default": "/" },
+    canonical: "/sk",
+    languages: languageAlternates("/"),
   },
   openGraph: {
     type: "website",
-    locale: "sk_SK",
+    locale: localeOg.sk,
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: HOME_TITLE,
-    description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: HOME_TITLE,
-    description: SITE_DESCRIPTION,
     images: [OG_IMAGE.url],
   },
   robots: {
@@ -96,75 +83,68 @@ export const defaultMetadata: Metadata = {
   },
 }
 
-/** Full homepage metadata — use from `app/page.tsx`. */
-export function homePageMetadata(): Metadata {
+export function homePageMetadata(locale: Locale = defaultLocale): Metadata {
+  const dict = getDictionary(locale)
+  const lessons = getLessons(locale)
+  const title = `${dict.brand.name} — ${dict.landing.headline}`
+  const description = t(dict.landing.lead, { count: lessons.length })
+  const canonical = homePath(locale)
+
   return {
-    title: { absolute: HOME_TITLE },
-    description: SITE_DESCRIPTION,
-    keywords: KEYWORDS,
+    title: { absolute: title },
+    description,
     alternates: {
-      canonical: "/",
-      languages: { sk: "/", "x-default": "/" },
+      canonical,
+      languages: languageAlternates("/"),
     },
     openGraph: {
       type: "website",
-      locale: "sk_SK",
-      url: absoluteUrl("/"),
-      siteName: SITE_NAME,
-      title: HOME_TITLE,
-      description: SITE_DESCRIPTION,
-      images: [OG_IMAGE],
+      locale: localeOg[locale],
+      url: absoluteUrl(canonical),
+      siteName: dict.brand.name,
+      title,
+      description,
+      images: [{ ...OG_IMAGE, alt: `${dict.brand.name} — ${dict.brand.tagline}` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: HOME_TITLE,
-      description: SITE_DESCRIPTION,
+      title,
+      description,
       images: [OG_IMAGE.url],
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
     },
   }
 }
 
-export function lessonMetadata(id: string): Metadata {
-  const lesson = LESSONS.find((l) => l.id === id)
+export function lessonMetadata(
+  id: string,
+  locale: Locale = defaultLocale
+): Metadata {
+  const lessons = getLessons(locale)
+  const lesson = lessons.find((l) => l.id === id)
   if (!lesson) {
-    return { title: "Lekcia sa nenašla", robots: { index: false } }
+    return { title: "Not found", robots: { index: false } }
   }
-  const url = `/lesson/${lesson.id}`
-  const title = `${lesson.title} (${lesson.order}/${LESSONS.length})`
-  const description = `${lesson.description} Úloha: ${lesson.task}`
+  const url = lessonPath(lesson, locale)
+  const title = `${lesson.title} (${lesson.order}/${lessons.length})`
+  const description = `${lesson.description} ${lesson.task}`
   return {
     title: lesson.title,
     description,
-    keywords: [
-      lesson.shortTitle,
-      lesson.title,
-      lesson.badge,
-      "informatika",
-      "3D lekcia",
-      "zadarmo",
-    ],
-    alternates: { canonical: url },
+    keywords: [lesson.shortTitle, lesson.title, lesson.badge],
+    alternates: {
+      canonical: url,
+      languages: languageAlternates(`/lesson/${lesson.id}`),
+    },
     openGraph: {
       type: "article",
-      locale: "sk_SK",
+      locale: localeOg[locale],
       url: absoluteUrl(url),
       title,
       description,
-      siteName: SITE_NAME,
+      siteName: getDictionary(locale).brand.name,
       images: [
         {
-          url: `/lesson/${lesson.id}/opengraph-image`,
+          url: `/${locale}/lesson/${lesson.id}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: lesson.title,
@@ -175,97 +155,111 @@ export function lessonMetadata(id: string): Metadata {
       card: "summary_large_image",
       title,
       description,
-      images: [`/lesson/${lesson.id}/opengraph-image`],
+      images: [`/${locale}/lesson/${lesson.id}/opengraph-image`],
     },
   }
 }
 
-export function courseJsonLd() {
+export function courseJsonLd(locale: Locale = defaultLocale) {
+  const dict = getDictionary(locale)
+  const lessons = getLessons(locale)
+  const lang = localeHtmlLang[locale]
   return {
     "@context": "https://schema.org",
     "@type": "Course",
-    name: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    inLanguage: "sk",
+    name: dict.brand.name,
+    description: dict.brand.tagline,
+    inLanguage: lang,
     isAccessibleForFree: true,
     educationalLevel: "beginner",
-    teaches: LESSONS.map((l) => l.shortTitle),
-    url: SITE_URL,
+    teaches: lessons.map((l) => l.shortTitle),
+    url: absoluteUrl(homePath(locale)),
     image: absoluteUrl("/opengraph-image"),
     provider: {
       "@type": "Organization",
-      name: SITE_NAME,
+      name: dict.brand.name,
       url: SITE_URL,
     },
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "online",
-      inLanguage: "sk",
+      inLanguage: lang,
     },
-    numberOfCredits: LESSONS.length,
-    hasPart: LESSONS.map((lesson) => ({
+    numberOfCredits: lessons.length,
+    hasPart: lessons.map((lesson) => ({
       "@type": "LearningResource",
       name: lesson.title,
       description: lesson.description,
-      url: absoluteUrl(`/lesson/${lesson.id}`),
+      url: absoluteUrl(lessonPath(lesson, locale)),
       position: lesson.order,
-      inLanguage: "sk",
+      inLanguage: lang,
       isAccessibleForFree: true,
       learningResourceType: "Lesson",
     })),
   }
 }
 
-/** Homepage WebSite + ItemList (Course JSON-LD lives in root layout). */
-export function homeJsonLd() {
+export function homeJsonLd(locale: Locale = defaultLocale) {
+  const dict = getDictionary(locale)
+  const lessons = getLessons(locale)
+  const lang = localeHtmlLang[locale]
   return [
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: SITE_NAME,
-      url: SITE_URL,
-      description: SITE_DESCRIPTION,
-      inLanguage: "sk",
+      name: dict.brand.name,
+      url: absoluteUrl(homePath(locale)),
+      description: dict.brand.tagline,
+      inLanguage: lang,
       publisher: {
         "@type": "Organization",
-        name: SITE_NAME,
+        name: dict.brand.name,
         url: SITE_URL,
       },
     },
     {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: `${LESSONS.length} lekcií — ${SITE_NAME}`,
-      numberOfItems: LESSONS.length,
-      itemListElement: LESSONS.map((lesson) => ({
+      name: `${lessons.length} — ${dict.brand.name}`,
+      numberOfItems: lessons.length,
+      itemListElement: lessons.map((lesson) => ({
         "@type": "ListItem",
         position: lesson.order,
         name: lesson.title,
-        url: absoluteUrl(`/lesson/${lesson.id}`),
+        url: absoluteUrl(lessonPath(lesson, locale)),
         description: lesson.description,
       })),
     },
   ]
 }
 
-export function lessonJsonLd(id: string) {
-  const lesson = LESSONS.find((l) => l.id === id)
+export function lessonJsonLd(id: string, locale: Locale = defaultLocale) {
+  const lessons = getLessons(locale)
+  const lesson = lessons.find((l) => l.id === id)
   if (!lesson) return null
+  const dict = getDictionary(locale)
+  const lang = localeHtmlLang[locale]
   return {
     "@context": "https://schema.org",
     "@type": "LearningResource",
     name: lesson.title,
     description: lesson.description,
-    inLanguage: "sk",
+    inLanguage: lang,
     isAccessibleForFree: true,
     learningResourceType: "Lesson",
     educationalLevel: "beginner",
     position: lesson.order,
-    url: absoluteUrl(`/lesson/${lesson.id}`),
+    url: absoluteUrl(lessonPath(lesson, locale)),
     isPartOf: {
       "@type": "Course",
-      name: SITE_NAME,
-      url: SITE_URL,
+      name: dict.brand.name,
+      url: absoluteUrl(homePath(locale)),
     },
   }
 }
+
+/** Legacy constant for older callers */
+export const SITE_TAGLINE = getDictionary(defaultLocale).brand.tagline
+export const SITE_DESCRIPTION = t(getDictionary(defaultLocale).landing.lead, {
+  count: getLessons(defaultLocale).length,
+})

@@ -1,12 +1,16 @@
 import { ImageResponse } from "next/og"
-import { LESSONS } from "@/data/lessons"
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/seo"
+import { getLessons } from "@/data/lessons"
+import { defaultLocale } from "@/i18n/config"
+import { getDictionary } from "@/i18n/get-dictionary"
 
-export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`
+export const alt = "Informatika 101"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
 export default function Image() {
+  const dict = getDictionary(defaultLocale)
+  const count = getLessons(defaultLocale).length
+
   return new ImageResponse(
     (
       <div
@@ -31,21 +35,28 @@ export default function Image() {
             color: "#2dd4bf",
           }}
         >
-          3D LAB · {LESSONS.length} LEKCIÍ · ZADARMO · SK
+          {`3D LAB · ${count} · SK / EN / CS`}
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <div
             style={{
+              display: "flex",
               fontSize: 88,
               fontWeight: 800,
               lineHeight: 0.92,
               letterSpacing: -3,
             }}
           >
-            informatika
+            {dict.landing.headline}
           </div>
           <div
             style={{
+              display: "flex",
               fontSize: 88,
               fontWeight: 800,
               lineHeight: 0.92,
@@ -55,8 +66,16 @@ export default function Image() {
           >
             101
           </div>
-          <div style={{ marginTop: 28, fontSize: 30, color: "#93b4bc", maxWidth: 720 }}>
-            Otvor počítač. Nie slidy. {SITE_TAGLINE}.
+          <div
+            style={{
+              display: "flex",
+              marginTop: 28,
+              fontSize: 30,
+              color: "#93b4bc",
+              maxWidth: 720,
+            }}
+          >
+            {dict.landing.subhead}
           </div>
         </div>
       </div>

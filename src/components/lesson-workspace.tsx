@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Check, Sparkles, Volume2 } from "lucide-react"
 import type { Lesson } from "@/data/lessons"
-import { getNextLesson, LESSONS } from "@/data/lessons"
-import { CHECKPOINTS } from "@/data/checkpoints"
+import { getLessons, getNextLesson } from "@/data/lessons"
+import { getCheckpoint } from "@/data/checkpoints"
+import type { Locale } from "@/i18n/config"
+import { useI18n } from "@/i18n/provider"
 import { lessonPath } from "@/lib/routes"
 import { useProgressStore } from "@/lib/store"
 import { useA11yPrefs } from "@/lib/a11y"
@@ -44,9 +46,12 @@ import { openGlossaryTerm } from "@/lib/glossary-events"
 
 type LessonWorkspaceProps = {
   lesson: Lesson
+  locale: Locale
 }
 
-export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
+export function LessonWorkspace({ lesson, locale }: LessonWorkspaceProps) {
+  const { dict, t } = useI18n()
+  const lessons = getLessons(locale)
   const completeTask = useProgressStore((s) => s.completeTask)
   const taskDone = useProgressStore((s) => s.taskDone[lesson.id])
   const checkpointDone = useProgressStore((s) => s.checkpoints[lesson.id])
@@ -68,9 +73,9 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
   const [placedIds, setPlacedIds] = useState<string[]>(() =>
     labCatalog ? labCatalog.map((p) => p.id) : []
   )
-  const next = getNextLesson(lesson.id)
-  const checkpoint = CHECKPOINTS[lesson.id]
-  const glossaryLinks = glossaryTermsForLesson(lesson.id)
+  const next = getNextLesson(lesson.id, locale)
+  const checkpoint = getCheckpoint(lesson.id, locale)
+  const glossaryLinks = glossaryTermsForLesson(lesson.id, locale)
 
   const [exploded, setExploded] = useState(false)
   const [bits, setBits] = useState([
@@ -180,8 +185,8 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     completeTask(lesson.id)
     setGuideMsg(
       checkpointDone
-        ? "Úloha splnená! Teraz skús mini kvíz v paneli vpravo."
-        : "Úloha splnená! Ešte rýchla kontrola v paneli Úloha."
+        ? dict.lesson.taskCompleteQuiz
+        : dict.lesson.taskCompleteCheck
     )
   }
 
@@ -303,7 +308,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     lesson.id === "what-is-a-computer" ? (
       <div className="flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-          Diely:
+          {dict.lesson.parts}
         </span>
         {INTRO_PARTS.map((part) => {
           const onTable = placedIds.includes(part.id)
@@ -352,7 +357,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     ) : lesson.id === "hardware" ? (
       <div className="flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-          Diely:
+          {dict.lesson.parts}
         </span>
         {HARDWARE_LAB_PARTS.map((part) => {
           const onTable = placedIds.includes(part.id)
@@ -389,16 +394,16 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
         <div className="reveal-up space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="h-6 px-2.5 font-heading font-semibold">
-              {lesson.order} / {LESSONS.length}
+              {lesson.order} / {lessons.length}
             </Badge>
             {taskDone && (
               <Badge variant="secondary" className="h-6 gap-1">
-                <Sparkles className="size-3" /> Úloha hotová
+                <Sparkles className="size-3" /> {dict.lesson.taskDone}
               </Badge>
             )}
             {checkpointDone && (
               <Badge variant="secondary" className="h-6 gap-1">
-                <Check className="size-3" /> Kontrola
+                <Check className="size-3" /> {dict.lesson.checkDone}
               </Badge>
             )}
             {completed && (
@@ -406,7 +411,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 variant="secondary"
                 className="h-6 gap-1 bg-accent text-accent-foreground"
               >
-                <Check className="size-3" /> Splnené
+                <Check className="size-3" /> {dict.lesson.completed}
               </Badge>
             )}
           </div>
@@ -415,7 +420,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
           </h1>
           <Alert variant="primary">
             <Sparkles />
-            <AlertTitle>Tvoja úloha</AlertTitle>
+            <AlertTitle>{dict.lesson.task}</AlertTitle>
             <AlertDescription className="font-semibold text-foreground">
               {lesson.task}
             </AlertDescription>
@@ -438,7 +443,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                     className="shrink-0"
                     onClick={() => setTab("lab")}
                   >
-                    Ovládanie
+                    {dict.lesson.controls}
                   </Button>
                 </div>
               }
@@ -512,25 +517,25 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 value="lab"
                 className="rounded-xl text-[11px] font-extrabold sm:text-xs"
               >
-                Úloha
+                {dict.lesson.tabLab}
               </TabsTrigger>
               <TabsTrigger
                 value="schema"
                 className="rounded-xl text-[11px] font-extrabold sm:text-xs"
               >
-                Schéma
+                {dict.lesson.tabSchema}
               </TabsTrigger>
               <TabsTrigger
                 value="info"
                 className="rounded-xl text-[11px] font-extrabold sm:text-xs"
               >
-                Info
+                {dict.lesson.tabInfo}
               </TabsTrigger>
               <TabsTrigger
                 value="quiz"
                 className="relative rounded-xl text-[11px] font-extrabold sm:text-xs"
               >
-                Kvíz
+                {dict.lesson.tabQuiz}
                 {taskDone && checkpointDone && !completed && (
                   <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
                 )}
@@ -543,7 +548,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
               <LessonSchematic lessonId={lesson.id} state={schematicState} />
               <div className="rounded-xl border border-dashed border-lab-line p-3">
                 <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Tip
+                  {dict.lesson.tip}
                 </p>
                 <p className="text-xs text-muted-foreground">{lesson.taskHint}</p>
               </div>
@@ -551,7 +556,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
 
             <TabsContent value="lab" className="mt-0 space-y-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                Ovládanie scény
+                {dict.lesson.sceneControls}
               </p>
               <p className="rounded-xl border border-primary/20 bg-primary/10 p-3 text-sm font-medium text-foreground">
                 {lesson.task}
@@ -648,10 +653,10 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
               )}
               <div className="space-y-2 rounded-xl border border-lab-line p-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Prístupnosť
+                  {dict.lesson.a11y}
                 </p>
                 <label className="flex items-center justify-between gap-2 text-xs">
-                  <span>Ľahký režim (bez 3D)</span>
+                  <span>{dict.lesson.lowPower}</span>
                   <input
                     type="checkbox"
                     checked={lowPower}
@@ -659,7 +664,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                   />
                 </label>
                 <label className="flex items-center justify-between gap-2 text-xs">
-                  <span>Menej animácií</span>
+                  <span>{dict.lesson.reduceMotion}</span>
                   <input
                     type="checkbox"
                     checked={a11yPrefs.reducedMotion}
@@ -675,13 +680,13 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
               <div className="rounded-2xl border border-lab-line bg-gradient-to-br from-sky-50 to-rose-50 p-3 dark:from-sky-950/40 dark:to-rose-950/30">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                    Sprievodca Byte
+                    {dict.lesson.guide}
                   </p>
                   <Button
                     variant="ghost"
                     size="icon-xs"
                     onClick={speakGuide}
-                    aria-label="Prečítať"
+                    aria-label={dict.lesson.readAloud}
                   >
                     <Volume2 className="size-3.5" />
                   </Button>
@@ -690,7 +695,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
               </div>
               <div>
                 <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Výber / meranie
+                  {dict.lesson.selection}
                 </p>
                 <p className="rounded-xl border-2 border-border bg-background p-3 text-sm font-medium text-foreground shadow-sm">
                   {info}
@@ -702,7 +707,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
               {glossaryLinks.length > 0 && (
                 <div>
                   <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                    Pojmy z tejto lekcie
+                    {dict.lesson.terms}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {glossaryLinks.map((t) => (
@@ -723,8 +728,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
             <TabsContent value="quiz" className="mt-0">
               {(!taskDone || !checkpointDone) && !completed && (
                 <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-                  Najprv splň úlohu v 3D (záložka Úloha) a rýchlu kontrolu.
-                  Potom kvíz pôjde ľahšie.
+                  {dict.lesson.quizGate}
                 </p>
               )}
               <QuizPanel
@@ -732,8 +736,8 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 onPassed={() =>
                   setGuideMsg(
                     next
-                      ? `Gratulujem! Môžeš pokračovať na „${next.title}“ — alebo skáč kam chceš, všetky lekcie sú voľné.`
-                      : "Hotovo! Prešiel/a si všetky lekcie."
+                      ? t(dict.lesson.passedNext, { title: next.title })
+                      : dict.lesson.passedAll
                   )
                 }
               />
@@ -741,9 +745,9 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 <Button
                   className="mt-4 w-full"
                   nativeButton={false}
-                  render={<Link href={lessonPath(next)} />}
+                  render={<Link href={lessonPath(next, locale)} />}
                 >
-                  Ďalšia lekcia
+                  {dict.lesson.nextLesson}
                   <ArrowRight className="size-4" />
                 </Button>
               )}

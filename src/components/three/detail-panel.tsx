@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button"
 import { useInspect } from "@/components/three/inspect-context"
 import { getGlossaryTerm } from "@/data/glossary"
 import { openGlossaryTerm } from "@/lib/glossary-events"
+import { useI18n } from "@/i18n/provider"
 
 export function DetailPanel() {
   const { focused, clear } = useInspect()
+  const { locale, dict, t } = useI18n()
   if (!focused) return null
 
   const glossary = focused.glossaryId
-    ? getGlossaryTerm(focused.glossaryId)
+    ? getGlossaryTerm(focused.glossaryId, locale)
     : undefined
 
   return (
@@ -25,7 +27,7 @@ export function DetailPanel() {
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
               <Focus className="size-3" />
-              Zoom · Detail
+              {dict.detail.zoom}
             </p>
             <h3 className="font-heading text-lg font-semibold leading-tight">
               {focused.title}
@@ -72,7 +74,7 @@ export function DetailPanel() {
               onClick={() => openGlossaryTerm(glossary.id)}
             >
               <BookMarked className="size-3.5" />
-              Slovníček: {glossary.term}
+              {t(dict.detail.glossary, { term: glossary.term })}
             </Button>
           )}
           <Button
@@ -81,7 +83,7 @@ export function DetailPanel() {
             className="w-full font-extrabold"
             onClick={clear}
           >
-            Späť na prehľad
+            {dict.detail.back}
           </Button>
         </div>
       </div>

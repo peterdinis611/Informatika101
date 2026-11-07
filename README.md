@@ -2,7 +2,7 @@
 
 Interaktívny **3D lab** po slovensky. Namiesto slidov otváraš počítač, klikáš na diely, sleduješ tok dát a overíš si to krátkym kvízom.
 
-15 voľných lekcií · light / dark · bez účtu · postup v prehliadači
+15 voľných lekcií · SK / EN / CS · light / dark · bez účtu · postup v prehliadači
 
 <p align="center">
   <img src="docs/screenshots/landing-dark.png" alt="Landing — dark mode" width="860" />
@@ -69,11 +69,11 @@ npm run lint
 
 | Cesta | Obsah |
 | --- | --- |
-| `/` | Landing + 3D hero |
-| `/lesson/[id]` | Lab lekcie (3D + úloha + kvíz) |
-| `/lekcia/*` | Redirect na `/lesson/*` (legacy) |
+| `/[locale]` | Landing + 3D hero (`sk` · `en` · `cs`) |
+| `/[locale]/lesson/[id]` | Lab lekcie (3D + úloha + kvíz) |
+| `/lekcia/*` | Redirect na `/sk/lesson/*` (legacy) |
 
-Príklad: [`/lesson/what-is-a-computer`](http://localhost:3000/lesson/what-is-a-computer)
+Príklad: [`/sk/lesson/what-is-a-computer`](http://localhost:3000/sk/lesson/what-is-a-computer) · [`/en/…`](http://localhost:3000/en/lesson/what-is-a-computer)
 
 ---
 

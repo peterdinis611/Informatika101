@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { CheckCircle2, XCircle } from "lucide-react"
 import type { Lesson } from "@/data/lessons"
+import { getLessons } from "@/data/lessons"
 import { useProgressStore } from "@/lib/store"
 import { burstConfetti } from "@/components/lab/confetti"
-import { LESSONS } from "@/data/lessons"
 import { QUIZ_PASS_SCORE, didPassQuiz, scoreQuiz } from "@/lib/quiz"
+import { useI18n } from "@/i18n/provider"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -16,11 +17,13 @@ type QuizPanelProps = {
 }
 
 export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
+  const { locale, dict, t } = useI18n()
   const completeQuiz = useProgressStore((s) => s.completeQuiz)
   const existing = useProgressStore((s) => s.quizScores[lesson.id])
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [submitted, setSubmitted] = useState(false)
   const [score, setScore] = useState(0)
+  const totalLessons = getLessons(locale).length
 
   function submit() {
     const s = scoreQuiz(answers, lesson.quiz)
@@ -29,7 +32,7 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
     completeQuiz(lesson.id, s, lesson.badge)
     if (didPassQuiz(s)) {
       onPassed?.()
-      const isLast = lesson.order === LESSONS.length
+      const isLast = lesson.order === totalLessons
       burstConfetti(isLast ? 160 : 70)
     }
   }
@@ -39,13 +42,11 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="font-heading text-lg font-semibold">Mini kvíz</h3>
+        <h3 className="font-heading text-lg font-semibold">{dict.quiz.title}</h3>
         <p className="text-sm text-muted-foreground">
-          Odpovedz na 3 otázky. Na odznak a body potrebuješ aspoň{" "}
-          {QUIZ_PASS_SCORE}/3 správne. Všetky lekcie sú už voľné — skáč kam
-          chceš.
+          {t(dict.quiz.intro, { pass: QUIZ_PASS_SCORE })}
           {existing !== undefined && !submitted && (
-            <span> Posledný výsledok: {existing}/3.</span>
+            <span> {t(dict.quiz.lastScore, { score: existing })}</span>
           )}
         </p>
       </div>
@@ -75,10 +76,17 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
                     }
                     className={cn(
                       "rounded-lg border px-3 py-2 text-left text-sm transition",
-                      !show && isChosen && "border-teal-500 bg-teal-50 dark:bg-teal-950",
+                      !show &&
+                        isChosen &&
+                        "border-teal-500 bg-teal-50 dark:bg-teal-950",
                       !show && !isChosen && "hover:bg-muted",
-                      show && isCorrect && "border-emerald-500 bg-emerald-50 dark:bg-emerald-950",
-                      show && isChosen && !isCorrect && "border-red-400 bg-red-50 dark:bg-red-950"
+                      show &&
+                        isCorrect &&
+                        "border-emerald-500 bg-emerald-50 dark:bg-emerald-950",
+                      show &&
+                        isChosen &&
+                        !isCorrect &&
+                        "border-red-400 bg-red-50 dark:bg-red-950"
                     )}
                   >
                     <span className="inline-flex items-center gap-2">
@@ -104,8 +112,12 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
       })}
 
       {!submitted ? (
-        <Button disabled={!allAnswered} onClick={submit} className="w-full sm:w-auto">
-          Skontrolovať odpovede
+        <Button
+          disabled={!allAnswered}
+          onClick={submit}
+          className="w-full sm:w-auto"
+        >
+          {dict.quiz.check}
         </Button>
       ) : (
         <div
@@ -116,10 +128,10 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
               : "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
           )}
         >
-          Výsledok: {score}/3.{" "}
+          {t(dict.quiz.result, { score })}{" "}
           {didPassQuiz(score)
-            ? `Výborne! Získavaš odznak „${lesson.badge}“.`
-            : "Skús to znova — môžeš kvíz opakovať."}
+            ? t(dict.quiz.badge, { badge: lesson.badge })
+            : dict.quiz.retryHint}
           {!didPassQuiz(score) && (
             <Button
               variant="outline"
@@ -131,7 +143,7 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
                 setScore(0)
               }}
             >
-              Skúsiť znova
+              {dict.quiz.retry}
             </Button>
           )}
         </div>
