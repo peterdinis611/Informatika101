@@ -30,7 +30,7 @@ export const LESSONS: Lesson[] = [
       "Počítač prijíma údaje (vstup), spracuje ich, uloží a ukáže výsledok (výstup).",
     guideIntro:
       "Ahoj! Som Byte, tvoj sprievodca. Poďme spolu zistiť, čo vlastne počítač robí — je to ako šikovná kuchárka: dostane recept, varí, a podáva hotové jedlo!",
-    task: "Klikni na bloky Vstup → Spracovanie → Uloženie → Výstup a sleduj tok dát.",
+    task: "Klikni na bloky Vstup → Spracovanie → Uloženie → Výstup a sleduj tok dát. Potom rýchlu kontrolu.",
     taskHint: "Začni pri klávesnici (vstup) a sleduj, ako sa gulôčka dát pohybuje.",
     badge: "Prvý bit",
     accent: "#0D9488",
@@ -308,8 +308,8 @@ export const LESSONS: Lesson[] = [
       "AND, OR a NOT sú základné stavebné kamene čipov. Z vypínačov a žiaroviek postavíš obvod.",
     guideIntro:
       "Hradlá rozhodujú ako áno/nie. AND potrebuje oba vstupy, OR stačí jeden, NOT otáča!",
-    task: "Rozsvieť žiarovku pomocou AND (oba zapnuté) a potom skús OR a NOT.",
-    taskHint: "Pri AND musia svietiť oba vypínače. Pri OR stačí jeden.",
+    task: "Ukáž AND s výstupom 1 (oba vstupy) a OR s výstupom 1 (práve jeden vstup).",
+    taskHint: "Oba ciele musíš splniť — sleduj zaškrtávacie body v paneli Úloha.",
     badge: "Logik",
     accent: "#EA580C",
     quiz: [
@@ -464,8 +464,8 @@ export const LESSONS: Lesson[] = [
       "Silné heslá, pozor na malvér a šifrovanie chránia tvoje údaje.",
     guideIntro:
       "Naučíme sa, ako sa nenechať oklamať a ako chrániť tajomstvá na webe aj v škole.",
-    task: "Vytvor silné heslo, odhaľ podozrivú správu a vyskúšaj šifrovanie Caesar.",
-    taskHint: "Silné heslo má dĺžku, veľké/malé písmená, čísla a symboly.",
+    task: "Nastav silné heslo (≥ 70 %) a vyber phishing správu spomedzi troch.",
+    taskHint: "Pozor na nátlak a žiadosť o heslo. Bežné maily od školy nie sú phishing.",
     badge: "Strážca",
     accent: "#4F46E5",
     quiz: [
@@ -516,8 +516,8 @@ export const LESSONS: Lesson[] = [
       "Súbor je pomenovaný balík dát. Priečinky ich zbierajú do stromu, aby si ich našiel.",
     guideIntro:
       "Predstav si skriňu: priečinky sú police, súbory sú zošity. Cesta povie, kde zošit leží.",
-    task: "Presuň tri súbory do správnych priečinkov (Dokumenty, Obrázky, Hudba).",
-    taskHint: "Klikni na súbor a potom na priečinok, kam patrí.",
+    task: "Presuň tri súbory do správnych priečinkov — zlá cesta sa nepočíta.",
+    taskHint: "úloha.docx → Dokumenty, foto.png → Obrázky, song.mp3 → Hudba.",
     badge: "Archivár",
     accent: "#CA8A04",
     quiz: [
@@ -615,8 +615,8 @@ export const LESSONS: Lesson[] = [
       "Databáza ukladá údaje v tabuľkách. Riadok je záznam, stĺpec je vlastnosť.",
     guideIntro:
       "Triedny výkaz je tabuľka: žiak, známka, predmet. Databáza vie v tom rýchlo hľadať.",
-    task: "Vyfiltruj tabuľku: nechaj len žiakov so známkou 1.",
-    taskHint: "Stlač „Len jednotkári“ a pozri, ktoré riadky ostanú.",
+    task: "Vyber správny SQL dopyt so WHERE známka = 1 (nie DELETE ani prázdny SELECT).",
+    taskHint: "Správna voľba zapne filter — v schéme uvidíš živý dopyt.",
     badge: "Strážca tabuliek",
     accent: "#2563EB",
     quiz: [
@@ -668,7 +668,7 @@ export const LESSONS: Lesson[] = [
     guideIntro:
       "HTML je kostra, CSS oblečenie, JS svaly. Prehliadač to poskladá do stránky.",
     task: "Zapni HTML, CSS aj JavaScript — až potom stránka ožije.",
-    taskHint: "V paneli Lab zapni všetky tri vrstvy.",
+    taskHint: "V paneli Úloha zapni všetky tri vrstvy.",
     badge: "Staviteľ webu",
     accent: "#EA580C",
     quiz: [
@@ -719,8 +719,8 @@ export const LESSONS: Lesson[] = [
       "AI hľadá vzory v dátach a predvída. Model nie je mágia — učí sa z príkladov.",
     guideIntro:
       "Model je ako žiak, ktorý videl veľa príkladov. Vie tipovať, ale môže sa mýliť.",
-    task: "Pošli tri krátke otázky modelu a porovnaj, kedy si je istý a kedy háda.",
-    taskHint: "Klikni na karty otázok. Sleduj „istotu“ odpovede.",
+    task: "Polož tri otázky a označ, ktorá odpoveď je neistá (hápanie / nízka istota).",
+    taskHint: "Po tretiej otázke vyber správnu „neistú“ odpoveď — tip: počasie.",
     badge: "Prieskumník AI",
     accent: "#7C3AED",
     quiz: [

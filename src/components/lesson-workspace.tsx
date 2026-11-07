@@ -5,31 +5,27 @@ import Link from "next/link"
 import { ArrowRight, Check, Sparkles, Volume2 } from "lucide-react"
 import type { Lesson } from "@/data/lessons"
 import { getNextLesson, LESSONS } from "@/data/lessons"
+import { CHECKPOINTS } from "@/data/checkpoints"
 import { lessonPath } from "@/lib/routes"
 import { useProgressStore } from "@/lib/store"
+import { useA11yPrefs } from "@/lib/a11y"
+import {
+  CPU_PROGRAM,
+  caesar,
+  gatesAndTrue,
+  gatesOrSingle,
+  passwordStrength,
+} from "@/lib/lesson-lab"
 import { Canvas3D } from "@/components/three/canvas-3d"
 import { QuizPanel } from "@/components/quiz-panel"
+import { CheckpointPanel } from "@/components/checkpoint-panel"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { IntroScene, INTRO_PARTS } from "@/components/scenes/intro-scene"
-import { HardwareScene } from "@/components/scenes/hardware-scene"
-import { BitsScene } from "@/components/scenes/bits-scene"
-import { CpuScene, type CpuPhase } from "@/components/scenes/cpu-scene"
-import { MemoryScene } from "@/components/scenes/memory-scene"
-import { OsScene } from "@/components/scenes/os-scene"
-import { GatesScene, type GateType } from "@/components/scenes/gates-scene"
-import { NetworkScene } from "@/components/scenes/network-scene"
-import { ProgrammingScene } from "@/components/scenes/programming-scene"
-import { SecurityScene } from "@/components/scenes/security-scene"
-import {
-  AiScene,
-  AlgorithmsScene,
-  DatabasesScene,
-  FilesScene,
-  WebScene,
-} from "@/components/scenes/extra-scenes"
+import { INTRO_PARTS } from "@/components/scenes/intro-scene"
+import type { CpuPhase } from "@/components/scenes/cpu-scene"
+import type { GateType } from "@/components/scenes/gates-scene"
 import { LessonSchematic } from "@/components/lab/lesson-schematic"
 import { PartsBuilder } from "@/components/lab/parts-builder"
 import {
@@ -39,65 +35,31 @@ import {
 } from "@/data/lab-parts"
 import { cn } from "@/lib/utils"
 import { useInspectStore } from "@/lib/inspect-store"
+import { LessonControls } from "@/components/lesson/lesson-controls"
+import { LessonScenes } from "@/components/lesson/lesson-scenes"
+import { LowPowerView } from "@/components/lesson/low-power-view"
+import { bitsToValue } from "@/lib/lesson-lab"
+import { glossaryTermsForLesson } from "@/data/glossary"
+import { openGlossaryTerm } from "@/lib/glossary-events"
 
 type LessonWorkspaceProps = {
   lesson: Lesson
 }
 
-const CPU_PROGRAM = [
-  {
-    text: "LOAD 5 → A",
-    fetch: "Načítavam LOAD 5",
-    decode: "Chápem: ulož 5 do A",
-    execute: "A = 5",
-    apply: (a: number, b: number) => ({ a: 5, b }),
-  },
-  {
-    text: "ADD 3",
-    fetch: "Načítavam ADD 3",
-    decode: "Chápem: pripočítaj 3 k A",
-    execute: "A = A + 3",
-    apply: (a: number, b: number) => ({ a: a + 3, b }),
-  },
-  {
-    text: "STORE A → B",
-    fetch: "Načítavam STORE",
-    decode: "Chápem: skopíruj A do B",
-    execute: "B = A",
-    apply: (a: number, b: number) => ({ a, b: a }),
-  },
-]
-
-function caesar(text: string, shift: number) {
-  return text
-    .split("")
-    .map((ch) => {
-      const code = ch.charCodeAt(0)
-      if (code >= 65 && code <= 90)
-        return String.fromCharCode(((code - 65 + shift) % 26) + 65)
-      if (code >= 97 && code <= 122)
-        return String.fromCharCode(((code - 97 + shift) % 26) + 97)
-      return ch
-    })
-    .join("")
-}
-
-function passwordStrength(pw: string) {
-  let s = 0
-  if (pw.length >= 8) s += 25
-  if (pw.length >= 12) s += 15
-  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s += 20
-  if (/\d/.test(pw)) s += 20
-  if (/[^A-Za-z0-9]/.test(pw)) s += 20
-  return Math.min(100, s)
-}
-
 export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
   const completeTask = useProgressStore((s) => s.completeTask)
   const taskDone = useProgressStore((s) => s.taskDone[lesson.id])
+  const checkpointDone = useProgressStore((s) => s.checkpoints[lesson.id])
   const completed = useProgressStore((s) =>
     s.completedLessons.includes(lesson.id)
   )
+  const {
+    prefs: a11yPrefs,
+    lowPower,
+    reduceMotion,
+    update: updateA11y,
+  } = useA11yPrefs()
+
   const [info, setInfo] = useState(lesson.description)
   const [guideMsg, setGuideMsg] = useState(lesson.guideIntro)
   const [tab, setTab] = useState("lab")
@@ -107,48 +69,8 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     labCatalog ? labCatalog.map((p) => p.id) : []
   )
   const next = getNextLesson(lesson.id)
-
-  useEffect(() => {
-    setInfo(lesson.description)
-    setGuideMsg(lesson.guideIntro)
-    setTab("lab")
-    setSelectedPart(null)
-    const catalog = getLabParts(lesson.id)
-    setPlacedIds(catalog ? catalog.map((p) => p.id) : [])
-    setFilePlaced({})
-    setSortValues([4, 1, 5, 2, 3])
-    setSortHighlight(null)
-    setOnlyOnes(false)
-    setWebHtml(false)
-    setWebCss(false)
-    setWebJs(false)
-    setAsked([])
-    useInspectStore.getState().clear()
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [lesson.id, lesson.description, lesson.guideIntro])
-
-  function addPart(id: string) {
-    setPlacedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
-  }
-
-  function removePart(id: string) {
-    setPlacedIds((prev) => prev.filter((x) => x !== id))
-    if (selectedPart === id) setSelectedPart(null)
-  }
-
-  function addAllParts() {
-    if (!labCatalog) return
-    setPlacedIds(labCatalog.map((p) => p.id))
-  }
-
-  function clearParts() {
-    setPlacedIds([])
-    setSelectedPart(null)
-  }
-
-  useEffect(() => {
-    if (taskDone && !completed) setTab("quiz")
-  }, [taskDone, completed])
+  const checkpoint = CHECKPOINTS[lesson.id]
+  const glossaryLinks = glossaryTermsForLesson(lesson.id)
 
   const [exploded, setExploded] = useState(false)
   const [bits, setBits] = useState([
@@ -173,6 +95,10 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
   const [gate, setGate] = useState<GateType>("AND")
   const [gateA, setGateA] = useState(false)
   const [gateB, setGateB] = useState(false)
+  const [gateGoals, setGateGoals] = useState({
+    andTrue: false,
+    orSingle: false,
+  })
   const [sending, setSending] = useState(false)
   const [netProgress, setNetProgress] = useState(0)
   const [variable, setVariable] = useState(3)
@@ -189,21 +115,74 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     null
   )
   const [onlyOnes, setOnlyOnes] = useState(false)
+  const [dbQuery, setDbQuery] = useState<string | null>(null)
   const [webHtml, setWebHtml] = useState(false)
   const [webCss, setWebCss] = useState(false)
   const [webJs, setWebJs] = useState(false)
   const [asked, setAsked] = useState<string[]>([])
+  const [aiFlagged, setAiFlagged] = useState<string | null>(null)
+
+  useEffect(() => {
+    setInfo(lesson.description)
+    setGuideMsg(lesson.guideIntro)
+    setTab("lab")
+    setSelectedPart(null)
+    const catalog = getLabParts(lesson.id)
+    setPlacedIds(catalog ? catalog.map((p) => p.id) : [])
+    setFilePlaced({})
+    setSortValues([4, 1, 5, 2, 3])
+    setSortHighlight(null)
+    setOnlyOnes(false)
+    setDbQuery(null)
+    setWebHtml(false)
+    setWebCss(false)
+    setWebJs(false)
+    setAsked([])
+    setAiFlagged(null)
+    setGateGoals({ andTrue: false, orSingle: false })
+    setPhishingCaught(false)
+    setPassword("")
+    useInspectStore.getState().clear()
+    window.scrollTo({
+      top: 0,
+      behavior: reduceMotion ? "auto" : "smooth",
+    })
+  }, [lesson.id, lesson.description, lesson.guideIntro, reduceMotion])
+
+  function addPart(id: string) {
+    setPlacedIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
+  }
+
+  function removePart(id: string) {
+    setPlacedIds((prev) => prev.filter((x) => x !== id))
+    if (selectedPart === id) setSelectedPart(null)
+  }
+
+  function addAllParts() {
+    if (!labCatalog) return
+    setPlacedIds(labCatalog.map((p) => p.id))
+  }
+
+  function clearParts() {
+    setPlacedIds([])
+    setSelectedPart(null)
+  }
+
+  useEffect(() => {
+    if (taskDone && checkpointDone && !completed) setTab("quiz")
+  }, [taskDone, checkpointDone, completed])
 
   const strength = useMemo(() => passwordStrength(password), [password])
   const encrypted = useMemo(() => caesar(plain, 3), [plain])
-  const bitValue = useMemo(
-    () => bits.reduce((acc, b, i) => acc + (b ? 1 << (7 - i) : 0), 0),
-    [bits]
-  )
+  const bitValue = useMemo(() => bitsToValue(bits), [bits])
 
   function markTask() {
     completeTask(lesson.id)
-    setGuideMsg("Úloha splnená! Teraz skús mini kvíz v paneli vpravo.")
+    setGuideMsg(
+      checkpointDone
+        ? "Úloha splnená! Teraz skús mini kvíz v paneli vpravo."
+        : "Úloha splnená! Ešte rýchla kontrola v paneli Úloha."
+    )
   }
 
   useEffect(() => {
@@ -218,12 +197,12 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
           setInfo("Paket sa vrátil! DNS pomohol nájsť server podľa mena.")
           return 1
         }
-        return p + 0.02
+        return p + (reduceMotion ? 0.08 : 0.02)
       })
-    }, 40)
+    }, reduceMotion ? 80 : 40)
     return () => window.clearInterval(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sending])
+  }, [sending, reduceMotion])
 
   function stepCpu() {
     const progIndex = Math.floor(cpuStep / 3)
@@ -269,7 +248,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
         markTask()
         setInfo(`Program vypísal „Ahoj!“ ${loops}-krát.`)
       }
-    }, 400)
+    }, reduceMotion ? 120 : 400)
   }
 
   function speakGuide() {
@@ -279,6 +258,17 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     u.lang = "sk-SK"
     u.rate = 0.95
     window.speechSynthesis.speak(u)
+  }
+
+  function syncGateGoals(nextGate: GateType, nextA: boolean, nextB: boolean) {
+    setGateGoals((prev) => {
+      const next = {
+        andTrue: prev.andTrue || gatesAndTrue(nextGate, nextA, nextB),
+        orSingle: prev.orSingle || gatesOrSingle(nextGate, nextA, nextB),
+      }
+      if (next.andTrue && next.orSingle) markTask()
+      return next
+    })
   }
 
   const schematicState = {
@@ -297,6 +287,16 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
     encrypted,
     sending,
     netProgress,
+    filePlaced,
+    sortValues,
+    sortHighlight,
+    onlyOnes,
+    dbQuery,
+    webHtml,
+    webCss,
+    webJs,
+    asked,
+    aiFlagged,
   }
 
   const introLegend =
@@ -396,8 +396,16 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 <Sparkles className="size-3" /> Úloha hotová
               </Badge>
             )}
+            {checkpointDone && (
+              <Badge variant="secondary" className="h-6 gap-1">
+                <Check className="size-3" /> Kontrola
+              </Badge>
+            )}
             {completed && (
-              <Badge variant="secondary" className="h-6 gap-1 bg-accent text-accent-foreground">
+              <Badge
+                variant="secondary"
+                className="h-6 gap-1 bg-accent text-accent-foreground"
+              >
                 <Check className="size-3" /> Splnené
               </Badge>
             )}
@@ -415,198 +423,80 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
         </div>
 
         <div className="min-h-0 flex-1">
-          <Canvas3D
-            banner={
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-card-foreground/75 sm:text-sm">
-                  {info}
-                </p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="shrink-0"
-                  onClick={() => setTab("lab")}
-                >
-                  Ovládanie
-                </Button>
-              </div>
-            }
-            legend={introLegend}
-          >
-            {lesson.id === "what-is-a-computer" && (
-              <IntroScene
+          {lowPower ? (
+            <LowPowerView lesson={lesson} state={schematicState} />
+          ) : (
+            <Canvas3D
+              banner={
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs text-card-foreground/75 sm:text-sm">
+                    {info}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() => setTab("lab")}
+                  >
+                    Ovládanie
+                  </Button>
+                </div>
+              }
+              legend={introLegend}
+            >
+              <LessonScenes
+                lessonId={lesson.id}
                 placedIds={placedIds}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-                onTaskProgress={markTask}
-                onSelectPart={setSelectedPart}
-              />
-            )}
-            {lesson.id === "hardware" && (
-              <HardwareScene
-                placedIds={placedIds}
+                selectedPart={selectedPart}
+                setSelectedPart={setSelectedPart}
                 exploded={exploded}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-                onTaskProgress={markTask}
-              />
-            )}
-            {lesson.id === "bits-and-bytes" && (
-              <BitsScene
                 bits={bits}
-                onToggle={(i) => {
-                  setBits((prev) => {
-                    const next = [...prev]
-                    next[i] = !next[i]
-                    const val = next.reduce(
-                      (acc, b, idx) => acc + (b ? 1 << (7 - idx) : 0),
-                      0
-                    )
-                    if (val === 13) markTask()
-                    return next
-                  })
-                }}
-                onInfo={setInfo}
-              />
-            )}
-            {lesson.id === "cpu" && (
-              <CpuScene
-                phase={cpuPhase}
-                registerA={regA}
-                registerB={regB}
-                instruction={cpuInstr}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "memory" && (
-              <MemoryScene
-                ramCells={powered ? ram : [null, null, null, null]}
-                diskCells={disk}
+                setBits={setBits}
+                cpuPhase={cpuPhase}
+                regA={regA}
+                regB={regB}
+                cpuInstr={cpuInstr}
+                ram={ram}
+                disk={disk}
                 powered={powered}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "operating-system" && (
-              <OsScene
                 processes={processes}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "logic-gates" && (
-              <GatesScene
                 gate={gate}
-                a={gateA}
-                b={gateB}
-                onToggleA={() => {
-                  setGateA((v) => !v)
-                  markTask()
+                gateA={gateA}
+                gateB={gateB}
+                onGateToggleA={() => {
+                  const next = !gateA
+                  setGateA(next)
+                  syncGateGoals(gate, next, gateB)
                 }}
-                onToggleB={() => {
-                  setGateB((v) => !v)
-                  markTask()
+                onGateToggleB={() => {
+                  const next = !gateB
+                  setGateB(next)
+                  syncGateGoals(gate, gateA, next)
                 }}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "networking" && (
-              <NetworkScene
                 sending={sending}
-                progress={netProgress}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "programming" && (
-              <ProgrammingScene
+                netProgress={netProgress}
                 variable={variable}
-                conditionOn={condOn}
+                condOn={condOn}
                 loops={loops}
                 running={running}
                 outputCount={outputCount}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "security" && (
-              <SecurityScene
                 strength={strength}
                 encrypted={encrypted}
                 phishingCaught={phishingCaught}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "files-and-folders" && (
-              <FilesScene
-                placed={filePlaced}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "algorithms" && (
-              <AlgorithmsScene
-                values={sortValues}
-                highlight={sortHighlight}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "databases" && (
-              <DatabasesScene
+                filePlaced={filePlaced}
+                sortValues={sortValues}
+                sortHighlight={sortHighlight}
                 onlyOnes={onlyOnes}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "web-and-html" && (
-              <WebScene
-                html={webHtml}
-                css={webCss}
-                js={webJs}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
-              />
-            )}
-            {lesson.id === "ai-basics" && (
-              <AiScene
+                webHtml={webHtml}
+                webCss={webCss}
+                webJs={webJs}
                 asked={asked}
-                onInfo={(text) => {
-                  setInfo(text)
-                  setTab("info")
-                }}
+                setInfo={setInfo}
+                setTab={setTab}
+                markTask={markTask}
               />
-            )}
-          </Canvas3D>
+            </Canvas3D>
+          )}
         </div>
       </section>
 
@@ -618,18 +508,30 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
         >
           <div className="border-b border-lab-line px-3 pt-3">
             <TabsList className="grid w-full grid-cols-4 rounded-2xl bg-muted p-1">
-              <TabsTrigger value="lab" className="rounded-xl text-[11px] font-extrabold sm:text-xs">
-                Lab
+              <TabsTrigger
+                value="lab"
+                className="rounded-xl text-[11px] font-extrabold sm:text-xs"
+              >
+                Úloha
               </TabsTrigger>
-              <TabsTrigger value="schema" className="rounded-xl text-[11px] font-extrabold sm:text-xs">
+              <TabsTrigger
+                value="schema"
+                className="rounded-xl text-[11px] font-extrabold sm:text-xs"
+              >
                 Schéma
               </TabsTrigger>
-              <TabsTrigger value="info" className="rounded-xl text-[11px] font-extrabold sm:text-xs">
+              <TabsTrigger
+                value="info"
+                className="rounded-xl text-[11px] font-extrabold sm:text-xs"
+              >
                 Info
               </TabsTrigger>
-              <TabsTrigger value="quiz" className="relative rounded-xl text-[11px] font-extrabold sm:text-xs">
+              <TabsTrigger
+                value="quiz"
+                className="relative rounded-xl text-[11px] font-extrabold sm:text-xs"
+              >
                 Kvíz
-                {taskDone && !completed && (
+                {taskDone && checkpointDone && !completed && (
                   <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
                 )}
               </TabsTrigger>
@@ -698,6 +600,8 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 setGateA={setGateA}
                 gateB={gateB}
                 setGateB={setGateB}
+                gateGoals={gateGoals}
+                setGateGoals={setGateGoals}
                 sending={sending}
                 setSending={setSending}
                 variable={variable}
@@ -723,6 +627,8 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 setSortHighlight={setSortHighlight}
                 onlyOnes={onlyOnes}
                 setOnlyOnes={setOnlyOnes}
+                dbQuery={dbQuery}
+                setDbQuery={setDbQuery}
                 webHtml={webHtml}
                 setWebHtml={setWebHtml}
                 webCss={webCss}
@@ -731,7 +637,38 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 setWebJs={setWebJs}
                 asked={asked}
                 setAsked={setAsked}
+                aiFlagged={aiFlagged}
+                setAiFlagged={setAiFlagged}
               />
+              {checkpoint && (
+                <CheckpointPanel
+                  lessonId={lesson.id}
+                  checkpoint={checkpoint}
+                />
+              )}
+              <div className="space-y-2 rounded-xl border border-lab-line p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                  Prístupnosť
+                </p>
+                <label className="flex items-center justify-between gap-2 text-xs">
+                  <span>Ľahký režim (bez 3D)</span>
+                  <input
+                    type="checkbox"
+                    checked={lowPower}
+                    onChange={(e) => updateA11y({ lowPower: e.target.checked })}
+                  />
+                </label>
+                <label className="flex items-center justify-between gap-2 text-xs">
+                  <span>Menej animácií</span>
+                  <input
+                    type="checkbox"
+                    checked={a11yPrefs.reducedMotion}
+                    onChange={(e) =>
+                      updateA11y({ reducedMotion: e.target.checked })
+                    }
+                  />
+                </label>
+              </div>
             </TabsContent>
 
             <TabsContent value="info" className="mt-0 space-y-4">
@@ -759,13 +696,35 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                   {info}
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground">{lesson.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {lesson.description}
+              </p>
+              {glossaryLinks.length > 0 && (
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    Pojmy z tejto lekcie
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {glossaryLinks.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => openGlossaryTerm(t.id)}
+                        className="rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-muted"
+                      >
+                        {t.term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="quiz" className="mt-0">
-              {!taskDone && !completed && (
+              {(!taskDone || !checkpointDone) && !completed && (
                 <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-                  Najprv skús úlohu v 3D (tab Lab). Potom kvíz pôjde ľahšie.
+                  Najprv splň úlohu v 3D (záložka Úloha) a rýchlu kontrolu.
+                  Potom kvíz pôjde ľahšie.
                 </p>
               )}
               <QuizPanel
@@ -773,7 +732,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                 onPassed={() =>
                   setGuideMsg(
                     next
-                      ? `Gratulujem! Odomkla sa lekcia „${next.title}“.`
+                      ? `Gratulujem! Môžeš pokračovať na „${next.title}“ — alebo skáč kam chceš, všetky lekcie sú voľné.`
                       : "Hotovo! Prešiel/a si všetky lekcie."
                   )
                 }
@@ -784,7 +743,7 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
                   nativeButton={false}
                   render={<Link href={lessonPath(next)} />}
                 >
-                  Next lesson
+                  Ďalšia lekcia
                   <ArrowRight className="size-4" />
                 </Button>
               )}
@@ -794,506 +753,4 @@ export function LessonWorkspace({ lesson }: LessonWorkspaceProps) {
       </aside>
     </div>
   )
-}
-
-type ControlsProps = {
-  lessonId: string
-  exploded: boolean
-  setExploded: (v: boolean) => void
-  bits: boolean[]
-  setBits: (v: boolean[] | ((p: boolean[]) => boolean[])) => void
-  stepCpu: () => void
-  resetCpu: () => void
-  setRam: (v: (string | null)[]) => void
-  setDisk: (v: (string | null)[]) => void
-  powered: boolean
-  setPowered: (v: boolean) => void
-  setProcesses: (v: string[] | ((p: string[]) => string[])) => void
-  gate: GateType
-  setGate: (g: GateType) => void
-  gateA: boolean
-  setGateA: (v: boolean | ((p: boolean) => boolean)) => void
-  gateB: boolean
-  setGateB: (v: boolean | ((p: boolean) => boolean)) => void
-  sending: boolean
-  setSending: (v: boolean) => void
-  variable: number
-  setVariable: (n: number) => void
-  condOn: boolean
-  setCondOn: (v: boolean) => void
-  loops: number
-  setLoops: (n: number) => void
-  runProgram: () => void
-  password: string
-  setPassword: (s: string) => void
-  plain: string
-  setPlain: (s: string) => void
-  phishingCaught: boolean
-  setPhishingCaught: (v: boolean) => void
-  markTask: () => void
-  setInfo: (s: string) => void
-  strength: number
-  filePlaced: Record<string, string>
-  setFilePlaced: (v: Record<string, string> | ((p: Record<string, string>) => Record<string, string>)) => void
-  sortValues: number[]
-  setSortValues: (v: number[] | ((p: number[]) => number[])) => void
-  setSortHighlight: (v: [number, number] | null) => void
-  onlyOnes: boolean
-  setOnlyOnes: (v: boolean) => void
-  webHtml: boolean
-  setWebHtml: (v: boolean) => void
-  webCss: boolean
-  setWebCss: (v: boolean) => void
-  webJs: boolean
-  setWebJs: (v: boolean) => void
-  asked: string[]
-  setAsked: (v: string[] | ((p: string[]) => string[])) => void
-}
-
-function ToggleRow({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  onChange: (v: boolean) => void
-}) {
-  return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-lab-line bg-muted/50 px-3 py-2.5 dark:bg-muted/40">
-      <span className="text-sm font-medium">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          "relative h-6 w-11 rounded-full transition",
-          checked ? "bg-lab-good" : "bg-[#cfc5b4]"
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow transition",
-            checked && "translate-x-5"
-          )}
-        />
-      </button>
-    </label>
-  )
-}
-
-function LessonControls(p: ControlsProps) {
-  if (p.lessonId === "what-is-a-computer") {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Pridaj alebo odober diely vyššie. Keď sú všetky na stole, klikni na ne v
-        3D a sleduj gulôčku dát.
-      </p>
-    )
-  }
-
-  if (p.lessonId === "hardware") {
-    return (
-      <div className="space-y-2">
-        <ToggleRow
-          label={p.exploded ? "Model rozložený" : "Model poskladaný"}
-          checked={p.exploded}
-          onChange={p.setExploded}
-        />
-        <p className="text-xs text-muted-foreground">
-          Skladaj PC: pridávaj CPU, RAM, SSD… alebo ich odober zo stola.
-        </p>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "bits-and-bytes") {
-    return (
-      <div className="space-y-2">
-        <Button
-          className="w-full"
-          variant="outline"
-          onClick={() =>
-            p.setBits([false, false, false, false, true, true, false, true])
-          }
-        >
-          Nastav hodnotu 13
-        </Button>
-        <Button
-          className="w-full"
-          variant="outline"
-          onClick={() => {
-            p.setBits([false, true, false, false, false, false, false, true])
-            p.markTask()
-            p.setInfo('ASCII 65 = písmeno „A“.')
-          }}
-        >
-          Ukáž „A“ (65)
-        </Button>
-        <Button
-          className="w-full"
-          variant="ghost"
-          onClick={() => p.setBits(Array(8).fill(false))}
-        >
-          Vynulovať
-        </Button>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "cpu") {
-    return (
-      <div className="flex flex-col gap-2">
-        <Button onClick={p.stepCpu}>Ďalší krok cyklu</Button>
-        <Button variant="outline" onClick={p.resetCpu}>
-          Reset registrov
-        </Button>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "memory") {
-    return (
-      <div className="space-y-2">
-        <Button
-          className="w-full"
-          onClick={() => {
-            if (!p.powered) {
-              p.setInfo("Najprv zapni počítač.")
-              return
-            }
-            p.setRam(["Ahoj", null, "42", null])
-            p.setDisk(["úloha.docx", "foto.png", null, null])
-            p.markTask()
-            p.setInfo("Údaje sú v RAM aj na disku.")
-          }}
-        >
-          Uložiť ukážkové dáta
-        </Button>
-        <ToggleRow
-          label={p.powered ? "Počítač zapnutý" : "Počítač vypnutý"}
-          checked={p.powered}
-          onChange={(on) => {
-            p.setPowered(on)
-            p.setInfo(
-              on
-                ? "Zapnuté: RAM je znova pripravená."
-                : "Vypnuté: RAM zmizla, disk ostal."
-            )
-            if (!on) p.markTask()
-          }}
-        />
-      </div>
-    )
-  }
-
-  if (p.lessonId === "operating-system") {
-    const apps = ["Prehliadač", "Editor", "Hudba"]
-    return (
-      <div className="space-y-2">
-        {apps.map((app) => (
-          <Button
-            key={app}
-            className="w-full"
-            variant="outline"
-            onClick={() => {
-              p.setProcesses((prev) => {
-                if (prev.includes(app)) return prev
-                const next = [...prev, app]
-                if (next.length >= 2) p.markTask()
-                return next
-              })
-              p.setInfo(`Spustený proces: ${app}`)
-            }}
-          >
-            Spustiť {app}
-          </Button>
-        ))}
-        <Button
-          className="w-full"
-          variant="ghost"
-          onClick={() => p.setProcesses([])}
-        >
-          Ukončiť všetko
-        </Button>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "logic-gates") {
-    return (
-      <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-2">
-          {(["AND", "OR", "NOT"] as GateType[]).map((g) => (
-            <Button
-              key={g}
-              variant={p.gate === g ? "default" : "outline"}
-              onClick={() => p.setGate(g)}
-            >
-              {g}
-            </Button>
-          ))}
-        </div>
-        <ToggleRow
-          label="Vstup A"
-          checked={p.gateA}
-          onChange={(v) => {
-            p.setGateA(v)
-            p.markTask()
-          }}
-        />
-        {p.gate !== "NOT" && (
-          <ToggleRow
-            label="Vstup B"
-            checked={p.gateB}
-            onChange={(v) => {
-              p.setGateB(v)
-              p.markTask()
-            }}
-          />
-        )}
-      </div>
-    )
-  }
-
-  if (p.lessonId === "networking") {
-    return (
-      <Button
-        className="w-full"
-        disabled={p.sending}
-        onClick={() => p.setSending(true)}
-      >
-        Odoslať paket
-      </Button>
-    )
-  }
-
-  if (p.lessonId === "programming") {
-    return (
-      <div className="space-y-3">
-        <label className="block text-sm">
-          Premenná počet
-          <input
-            type="number"
-            min={0}
-            max={5}
-            value={p.variable}
-            onChange={(e) => p.setVariable(Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-lab-line bg-background px-3 py-2"
-          />
-        </label>
-        <ToggleRow
-          label="Podmienka zapnutá"
-          checked={p.condOn}
-          onChange={p.setCondOn}
-        />
-        <label className="block text-sm">
-          Počet cyklov
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={p.loops}
-            onChange={(e) => p.setLoops(Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-lab-line bg-background px-3 py-2"
-          />
-        </label>
-        <Button className="w-full" onClick={p.runProgram}>
-          Spustiť program
-        </Button>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "security") {
-    return (
-      <div className="space-y-3">
-        <label className="block text-sm">
-          Skús heslo
-          <input
-            type="text"
-            value={p.password}
-            onChange={(e) => {
-              p.setPassword(e.target.value)
-              if (passwordStrength(e.target.value) >= 70) p.markTask()
-            }}
-            className="mt-1 w-full rounded-lg border border-lab-line bg-background px-3 py-2"
-            placeholder="Napr. Domcek#2026"
-          />
-          <span className="mt-1 block font-mono text-xs text-muted-foreground">
-            Sila: {p.strength}%
-          </span>
-        </label>
-        <Button
-          className="w-full"
-          variant={p.phishingCaught ? "secondary" : "outline"}
-          onClick={() => {
-            p.setPhishingCaught(true)
-            p.setInfo(
-              "Podozrivé: nátlak, cudzí odkaz, žiadosť o heslo. Neklikaj!"
-            )
-            p.markTask()
-          }}
-        >
-          Odhaľ phishing správu
-        </Button>
-        <label className="block text-sm">
-          Text na šifrovanie
-          <input
-            type="text"
-            value={p.plain}
-            onChange={(e) => p.setPlain(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-lab-line bg-background px-3 py-2"
-          />
-        </label>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "files-and-folders") {
-    const moves = [
-      { file: "uloha", folder: "docs", label: "úloha.docx → Dokumenty" },
-      { file: "foto", folder: "pics", label: "foto.png → Obrázky" },
-      { file: "song", folder: "music", label: "song.mp3 → Hudba" },
-    ]
-    return (
-      <div className="space-y-2">
-        {moves.map((m) => (
-          <Button
-            key={m.file}
-            className="w-full"
-            variant={p.filePlaced[m.file] ? "secondary" : "outline"}
-            onClick={() => {
-              p.setFilePlaced((prev) => {
-                const next = { ...prev, [m.file]: m.folder }
-                if (Object.keys(next).length >= 3) p.markTask()
-                return next
-              })
-              p.setInfo(`${m.label}. Cesta hovorí, kde súbor leží.`)
-            }}
-          >
-            {m.label}
-          </Button>
-        ))}
-      </div>
-    )
-  }
-
-  if (p.lessonId === "algorithms") {
-    return (
-      <div className="space-y-2">
-        <Button
-          className="w-full"
-          onClick={() => {
-            const arr = [...p.sortValues]
-            let swapped = false
-            for (let i = 0; i < arr.length - 1; i++) {
-              if (arr[i] > arr[i + 1]) {
-                p.setSortHighlight([i, i + 1])
-                ;[arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]
-                swapped = true
-                p.setSortValues(arr)
-                p.setInfo(`Vymenili sme ${arr[i + 1]} a ${arr[i]}.`)
-                break
-              }
-            }
-            if (!swapped) {
-              p.setSortHighlight(null)
-              p.setInfo("Hotovo — pole je zoradené.")
-              p.markTask()
-            }
-          }}
-        >
-          Ďalší krok triedenia
-        </Button>
-        <Button
-          className="w-full"
-          variant="outline"
-          onClick={() => {
-            p.setSortValues([4, 1, 5, 2, 3])
-            p.setSortHighlight(null)
-          }}
-        >
-          Reset veží
-        </Button>
-      </div>
-    )
-  }
-
-  if (p.lessonId === "databases") {
-    return (
-      <Button
-        className="w-full"
-        variant={p.onlyOnes ? "secondary" : "default"}
-        onClick={() => {
-          p.setOnlyOnes(true)
-          p.markTask()
-          p.setInfo("Dopyt nechal len riadky, kde známka = 1.")
-        }}
-      >
-        Len jednotkári
-      </Button>
-    )
-  }
-
-  if (p.lessonId === "web-and-html") {
-    const layers = [
-      { key: "html" as const, on: p.webHtml, set: p.setWebHtml, label: "Zapnúť HTML" },
-      { key: "css" as const, on: p.webCss, set: p.setWebCss, label: "Zapnúť CSS" },
-      { key: "js" as const, on: p.webJs, set: p.setWebJs, label: "Zapnúť JavaScript" },
-    ]
-    return (
-      <div className="space-y-2">
-        {layers.map((l) => (
-          <Button
-            key={l.key}
-            className="w-full"
-            variant={l.on ? "secondary" : "outline"}
-            onClick={() => {
-              l.set(true)
-              const html = l.key === "html" ? true : p.webHtml
-              const css = l.key === "css" ? true : p.webCss
-              const js = l.key === "js" ? true : p.webJs
-              if (html && css && js) p.markTask()
-              p.setInfo(`${l.label.replace("Zapnúť ", "")} je kostra, štýl alebo správanie stránky.`)
-            }}
-          >
-            {l.label}
-          </Button>
-        ))}
-      </div>
-    )
-  }
-
-  if (p.lessonId === "ai-basics") {
-    const qs = ["2+2?", "Hlavné mesto SK?", "Zajtrajšie počasie?"]
-    return (
-      <div className="space-y-2">
-        {qs.map((q) => (
-          <Button
-            key={q}
-            className="w-full"
-            variant={p.asked.includes(q) ? "secondary" : "outline"}
-            onClick={() => {
-              p.setAsked((prev) => {
-                const next = prev.includes(q) ? prev : [...prev, q]
-                if (next.length >= 3) p.markTask()
-                return next
-              })
-              p.setInfo(
-                q.includes("počasie")
-                  ? "Nízka istota — model háda. Over si fakt."
-                  : "Vysoká istota — jednoduchý fakt."
-              )
-            }}
-          >
-            Opýtať: {q}
-          </Button>
-        ))}
-      </div>
-    )
-  }
-
-  return null
 }

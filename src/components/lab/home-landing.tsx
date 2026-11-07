@@ -137,7 +137,7 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
         <div className="relative z-20 flex min-h-dvh flex-col">
           <header className="flex items-center justify-between gap-4 px-5 pt-5 md:px-8 md:pt-7">
             <p className="font-heading text-[13px] font-bold uppercase tracking-[0.22em] text-[var(--land-ink)]/55">
-              Lab · SK
+              Informatika · SK
             </p>
             <nav
               aria-label="Hlavná navigácia"
@@ -160,7 +160,7 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
                 href={startHref}
                 className="rounded-full px-3 py-1.5 transition hover:bg-[var(--land-ink)]/8"
               >
-                Lab
+                Štart
               </Link>
               <ThemeToggle />
             </nav>
@@ -374,9 +374,9 @@ export function HomeLanding({ firstLessonId }: { firstLessonId: string }) {
         <div className="mx-auto flex max-w-3xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="font-heading text-[clamp(2rem,5vw,3.25rem)] font-bold leading-[0.95] tracking-[-0.03em]">
-              Lekcia 1
+              Všetky lekcie
               <br />
-              je odomknutá.
+              sú voľné.
             </h2>
             <p className="mt-4 max-w-[36ch] text-[15px] leading-relaxed text-[#f0fffc]/85">
               {LESSONS[0].task} Účet nepotrebuješ — postup ostane v tomto

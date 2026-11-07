@@ -1,12 +1,18 @@
 "use client"
 
-import { X, Focus, Lightbulb } from "lucide-react"
+import { X, Focus, Lightbulb, BookMarked } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useInspect } from "@/components/three/inspect-context"
+import { getGlossaryTerm } from "@/data/glossary"
+import { openGlossaryTerm } from "@/lib/glossary-events"
 
 export function DetailPanel() {
   const { focused, clear } = useInspect()
   if (!focused) return null
+
+  const glossary = focused.glossaryId
+    ? getGlossaryTerm(focused.glossaryId)
+    : undefined
 
   return (
     <aside
@@ -57,6 +63,17 @@ export function DetailPanel() {
               <Lightbulb className="mt-0.5 size-3.5 shrink-0" />
               {focused.tip}
             </p>
+          )}
+          {glossary && (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="w-full gap-1.5 font-extrabold"
+              onClick={() => openGlossaryTerm(glossary.id)}
+            >
+              <BookMarked className="size-3.5" />
+              Slovníček: {glossary.term}
+            </Button>
           )}
           <Button
             size="sm"

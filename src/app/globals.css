@@ -401,8 +401,10 @@
   .lab-spin-c,
   .lab-spin-core,
   .landing-reveal,
+  .reveal-up,
   .lab-confetti-bit {
-    animation: none;
+    animation: none !important;
+    animation-delay: 0s !important;
   }
   .lab-confetti-bit {
     top: 28%;

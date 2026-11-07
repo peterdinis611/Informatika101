@@ -71,7 +71,8 @@ export function FilesScene({
             title: `Priečinok ${f.label}`,
             summary: f.summary,
             facts: f.facts,
-            tip: "V Lab paneli priraď súbory do správnych priečinkov.",
+            tip: "V paneli Úloha priraď súbory do správnych priečinkov.",
+            glossaryId: "priecinok",
           }}
           onOpen={() => onInfo(`Priečinok ${f.label} zbiera súbory rovnakého typu.`)}
         >
@@ -113,7 +114,8 @@ export function FilesScene({
                   "Názov + prípona identifikujú súbor",
                   "Presun do priečinka = zmena cesty, nie obsahu",
                 ],
-                tip: "Použi Lab panel na umiestnenie súboru.",
+                tip: "Použi panel Úloha na umiestnenie súboru.",
+                glossaryId: "subor",
               }}
               onOpen={() => onInfo(`${file.label} → ${file.want}`)}
             >
@@ -161,7 +163,8 @@ export function AlgorithmsScene({
                 "Najväčšie hodnoty „bublajú“ doprava.",
                 "Jednoduchý, ale pri veľkých dátach pomalý.",
               ],
-              tip: "V Lab stlač Ďalší krok a sleduj zvýraznené stĺpce.",
+              tip: "V paneli Úloha stlač Ďalší krok a sleduj zvýraznené stĺpce.",
+              glossaryId: "bubble-sort",
             }}
             onOpen={() => onInfo?.(`Index ${i}, hodnota ${v}`)}
           >
@@ -222,7 +225,8 @@ export function DatabasesScene({
               "SELECT filtruje, ktoré riadky uvidíš",
               "WHERE známka = 1 nechá len jednotkárov",
             ],
-            tip: "Zapni filter v Lab a porovnaj počet riadkov.",
+            tip: "Vyber správny dopyt v paneli Úloha a porovnaj počet riadkov.",
+            glossaryId: "dopyt",
           }}
           onOpen={() => onInfo(`${row.name}: známka ${row.grade}. Riadok = jeden záznam.`)}
         >
@@ -312,7 +316,8 @@ export function WebScene({
             css ? "CSS ✓" : "Bez CSS",
             js ? "JS ✓" : "Bez JS",
           ],
-          tip: "V Lab zapínaj vrstvy po jednej.",
+          tip: "V paneli Úloha zapínaj vrstvy po jednej.",
+          glossaryId: "html",
         }}
         onOpen={() => onInfo?.("Náhľad stránky v prehliadači.")}
       >
@@ -345,7 +350,8 @@ export function WebScene({
             title: l.title,
             summary: l.summary,
             facts: l.facts,
-            tip: "Zapni vrstvu v Lab paneli a pozoruj náhľad vľavo.",
+            tip: "Zapni vrstvu v paneli Úloha a pozoruj náhľad vľavo.",
+            glossaryId: l.id === "web-html" ? "html" : l.id === "web-css" ? "css" : "javascript",
           }}
           onOpen={() => onInfo?.(l.title)}
         >
@@ -387,6 +393,7 @@ export function AiScene({
             "AI ne„chápe“ ako človek — predikuje tokeny",
           ],
           tip: "Klikni na otázky vpravo a porovnaj istotu odpovedí.",
+          glossaryId: "ai",
         }}
         onOpen={() => onInfo("AI model odhaduje odpovede — overuj fakty.")}
       >
@@ -409,22 +416,23 @@ export function AiScene({
               title: c.q,
               summary: done
                 ? `Odpoveď: ${c.a}. Model hlási istotu ${c.conf}%.`
-                : "Zatiaľ nepoložené — pošli otázku z Lab panela.",
+                : "Zatiaľ nepoložené — pošli otázku z panela Úloha.",
               facts: [
                 done
                   ? c.conf < 50
                     ? "Nízka istota — over si to inde."
                     : "Vysoká istota — stále môžeš overiť."
-                  : "Klikni v Lab, aby si otázku poslal.",
+                  : "Klikni v paneli Úloha, aby si otázku poslal.",
                 "Istota ≠ záruka pravdy",
               ],
               tip: "Porovnaj otázku s istotou 98% vs 34%.",
+              glossaryId: c.conf < 50 ? "halucinacia" : "ai",
             }}
             onOpen={() =>
               onInfo(
                 done
                   ? `Otázka „${c.q}“ → ${c.a} (istota ${c.conf}%).`
-                  : "Klikni v paneli Lab, aby si otázku poslal modelu."
+                  : "Klikni v paneli Úloha, aby si otázku poslal modelu."
               )
             }
           >

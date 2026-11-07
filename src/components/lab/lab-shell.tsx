@@ -80,7 +80,7 @@ export function LabShell({
                 pathname.startsWith("/lesson") && "bg-primary"
               )}
             >
-              Lab
+              Laboratórium
             </Button>
           </nav>
 

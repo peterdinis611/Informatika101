@@ -6,6 +6,7 @@ import type { Lesson } from "@/data/lessons"
 import { useProgressStore } from "@/lib/store"
 import { burstConfetti } from "@/components/lab/confetti"
 import { LESSONS } from "@/data/lessons"
+import { QUIZ_PASS_SCORE, didPassQuiz, scoreQuiz } from "@/lib/quiz"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -22,14 +23,11 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
   const [score, setScore] = useState(0)
 
   function submit() {
-    let s = 0
-    for (const q of lesson.quiz) {
-      if (answers[q.id] === q.correctIndex) s++
-    }
+    const s = scoreQuiz(answers, lesson.quiz)
     setScore(s)
     setSubmitted(true)
     completeQuiz(lesson.id, s, lesson.badge)
-    if (s >= 2) {
+    if (didPassQuiz(s)) {
       onPassed?.()
       const isLast = lesson.order === LESSONS.length
       burstConfetti(isLast ? 160 : 70)
@@ -43,8 +41,9 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
       <div>
         <h3 className="font-heading text-lg font-semibold">Mini kvíz</h3>
         <p className="text-sm text-muted-foreground">
-          Odpovedz na 3 otázky. Na odomknutie ďalšej lekcie potrebuješ aspoň 2
-          správne.
+          Odpovedz na 3 otázky. Na odznak a body potrebuješ aspoň{" "}
+          {QUIZ_PASS_SCORE}/3 správne. Všetky lekcie sú už voľné — skáč kam
+          chceš.
           {existing !== undefined && !submitted && (
             <span> Posledný výsledok: {existing}/3.</span>
           )}
@@ -112,16 +111,16 @@ export function QuizPanel({ lesson, onPassed }: QuizPanelProps) {
         <div
           className={cn(
             "rounded-xl px-4 py-3 text-sm font-medium",
-            score >= 2
+            didPassQuiz(score)
               ? "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
               : "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
           )}
         >
           Výsledok: {score}/3.{" "}
-          {score >= 2
+          {didPassQuiz(score)
             ? `Výborne! Získavaš odznak „${lesson.badge}“.`
             : "Skús to znova — môžeš kvíz opakovať."}
-          {score < 2 && (
+          {!didPassQuiz(score) && (
             <Button
               variant="outline"
               size="sm"

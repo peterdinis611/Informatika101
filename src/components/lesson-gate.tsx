@@ -1,6 +1,9 @@
 "use client"
 
-/** All lessons are free — gate always renders children. */
+/**
+ * Free-explore: všetky lekcie sú otvorené.
+ * Komponent ostáva kvôli route API — žiadny zámok.
+ */
 export function LessonGate({
   children,
 }: {

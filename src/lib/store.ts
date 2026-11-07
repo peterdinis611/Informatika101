@@ -3,6 +3,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { LESSONS } from "@/data/lessons"
+import { didPassQuiz } from "@/lib/quiz"
 
 export type BadgeId = string
 
@@ -12,9 +13,11 @@ type ProgressState = {
   points: number
   badges: BadgeId[]
   taskDone: Record<string, boolean>
+  checkpoints: Record<string, boolean>
   completeTask: (lessonId: string) => void
+  completeCheckpoint: (lessonId: string) => void
   completeQuiz: (lessonId: string, score: number, badge: string) => void
-  /** All lessons are free — always unlocked. */
+  /** Free-explore: všetky lekcie sú vždy otvorené. */
   isUnlocked: (lessonId: string) => boolean
   resetProgress: () => void
 }
@@ -27,6 +30,7 @@ export const useProgressStore = create<ProgressState>()(
       points: 0,
       badges: [],
       taskDone: {},
+      checkpoints: {},
 
       completeTask: (lessonId) =>
         set((s) => ({
@@ -34,10 +38,16 @@ export const useProgressStore = create<ProgressState>()(
           points: s.taskDone[lessonId] ? s.points : s.points + 10,
         })),
 
+      completeCheckpoint: (lessonId) =>
+        set((s) => ({
+          checkpoints: { ...s.checkpoints, [lessonId]: true },
+          points: s.checkpoints[lessonId] ? s.points : s.points + 5,
+        })),
+
       completeQuiz: (lessonId, score, badge) =>
         set((s) => {
           const already = s.completedLessons.includes(lessonId)
-          const passed = score >= 2
+          const passed = didPassQuiz(score)
           if (!passed) {
             return {
               quizScores: { ...s.quizScores, [lessonId]: score },
@@ -65,9 +75,10 @@ export const useProgressStore = create<ProgressState>()(
           points: 0,
           badges: [],
           taskDone: {},
+          checkpoints: {},
         }),
     }),
-    { name: "informatika-101-progress-v3" }
+    { name: "informatika-101-progress-v4" }
   )
 )
 

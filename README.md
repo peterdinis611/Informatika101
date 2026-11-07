@@ -97,7 +97,7 @@ Príklad: [`/lesson/what-is-a-computer`](http://localhost:3000/lesson/what-is-a-
 | 14 | `web-and-html` | Web |
 | 15 | `ai-basics` | AI |
 
-Každá lekcia má 3D scénu, úlohu a kvíz (typicky aspoň 2/3 na odomknutie ďalšej).
+Každá lekcia má 3D scénu, úlohu, rýchlu kontrolu a kvíz (aspoň 2/3 na odznak). Všetky lekcie sú voľné (free-explore).
 
 ---
 

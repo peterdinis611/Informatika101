@@ -189,7 +189,7 @@ function ChromeControls({
           variant="ghost"
           size="icon-sm"
           onClick={onReset}
-          aria-label="Reset pohľadu"
+          aria-label="Obnoviť pohľad"
           className="text-foreground"
         >
           <RotateCcw className="size-4" />

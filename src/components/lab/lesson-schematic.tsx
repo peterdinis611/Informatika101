@@ -19,6 +19,16 @@ type SchematicState = {
   encrypted: string
   sending: boolean
   netProgress: number
+  filePlaced?: Record<string, string>
+  sortValues?: number[]
+  sortHighlight?: [number, number] | null
+  onlyOnes?: boolean
+  dbQuery?: string | null
+  webHtml?: boolean
+  webCss?: boolean
+  webJs?: boolean
+  asked?: string[]
+  aiFlagged?: string | null
 }
 
 export function LessonSchematic({
@@ -85,7 +95,7 @@ export function LessonSchematic({
           <rect x="130" y="58" width="14" height="28" rx="2" fill="#2f6fed" />
           <rect x="160" y="62" width="40" height="16" rx="2" fill="#5b4b8a" />
           <text x="140" y="110" textAnchor="middle" fontSize="9" fontWeight="700" fill="currentColor">
-            {state.exploded ? "EXPLODED VIEW" : "CASE CLOSED"}
+            {state.exploded ? "Rozložený pohľad" : "Skrinka zatvorená"}
           </text>
         </svg>
       </SchematicCard>
@@ -306,37 +316,89 @@ export function LessonSchematic({
   }
 
   if (lessonId === "files-and-folders") {
+    const placed = state.filePlaced ?? {}
+    const rows = [
+      { file: "úloha.docx", folder: placed.uloha === "docs" ? "Dokumenty ✓" : "—" },
+      { file: "foto.png", folder: placed.foto === "pics" ? "Obrázky ✓" : "—" },
+      { file: "song.mp3", folder: placed.song === "music" ? "Hudba ✓" : "—" },
+    ]
     return (
-      <SchematicCard title="Strom súborov">
-        <p className="text-sm">Domov → Dokumenty / Obrázky / Hudba</p>
+      <SchematicCard title="Strom súborov (živo)">
+        <ul className="space-y-1 font-mono text-xs">
+          <li>Domov/</li>
+          {rows.map((r) => (
+            <li key={r.file} className="pl-3">
+              {r.folder} ← {r.file}
+            </li>
+          ))}
+        </ul>
       </SchematicCard>
     )
   }
   if (lessonId === "algorithms") {
+    const values = state.sortValues ?? []
+    const hi = state.sortHighlight
     return (
-      <SchematicCard title="Bubble sort">
-        <p className="text-sm">Porovnaj susedov. Ak sú naopak, vymeň ich. Opakuj.</p>
+      <SchematicCard title="Bubble sort (živo)">
+        <div className="flex items-end justify-center gap-1.5 py-2">
+          {values.map((v, i) => {
+            const active = hi && (hi[0] === i || hi[1] === i)
+            return (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div
+                  className="w-7 rounded-t-md"
+                  style={{
+                    height: 12 + v * 14,
+                    background: active ? "#e23d2a" : "#0ea5e9",
+                  }}
+                />
+                <span className="font-mono text-[10px] font-bold">{v}</span>
+              </div>
+            )
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Porovnaj susedov. Ak sú naopak, vymeň ich.
+        </p>
       </SchematicCard>
     )
   }
   if (lessonId === "databases") {
     return (
-      <SchematicCard title="Dopyt">
-        <p className="font-mono text-xs">SELECT * FROM ziaci WHERE znamka = 1</p>
+      <SchematicCard title="Dopyt (živo)">
+        <p className="font-mono text-xs">
+          {state.dbQuery ?? "— vyber dopyt v paneli Úloha —"}
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {state.onlyOnes
+            ? "Filter zapnutý: len známka = 1"
+            : "Filter vypnutý: všetky riadky"}
+        </p>
       </SchematicCard>
     )
   }
   if (lessonId === "web-and-html") {
     return (
-      <SchematicCard title="Vrstvy webu">
-        <p className="text-sm">HTML štruktúra → CSS vzhľad → JS správanie</p>
+      <SchematicCard title="Vrstvy webu (živo)">
+        <ul className="space-y-1 text-sm">
+          <li>{state.webHtml ? "✓" : "○"} HTML — štruktúra</li>
+          <li>{state.webCss ? "✓" : "○"} CSS — vzhľad</li>
+          <li>{state.webJs ? "✓" : "○"} JS — správanie</li>
+        </ul>
       </SchematicCard>
     )
   }
   if (lessonId === "ai-basics") {
+    const asked = state.asked ?? []
     return (
-      <SchematicCard title="Model">
-        <p className="text-sm">Vstup (otázka) → vzory v dátach → výstup + istota</p>
+      <SchematicCard title="Model (živo)">
+        <p className="text-xs text-muted-foreground">
+          Otázky: {asked.length}/3
+          {state.aiFlagged ? ` · označené: ${state.aiFlagged}` : ""}
+        </p>
+        <p className="mt-2 text-sm">
+          Vstup → vzory → výstup + istota
+        </p>
       </SchematicCard>
     )
   }

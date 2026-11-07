@@ -8,6 +8,8 @@ export type InspectTarget = {
   summary: string
   facts?: string[]
   tip?: string
+  /** Link to glossary term id — DetailPanel opens slovníček. */
+  glossaryId?: string
   position: [number, number, number]
   offset?: [number, number, number]
 }

@@ -49,8 +49,8 @@ export function HelpDialog({
             zobrazí vysvetlenie v pravom paneli.
           </li>
           <li>
-            <strong className="text-foreground">Lekcie:</strong> pás dole —
-            odomykajú sa po úspešnom kvíze (aspoň 2/3).
+            <strong className="text-foreground">Lekcie:</strong> všetky sú voľné
+            (free-explore). Kvíz (aspoň 2/3) dáva body a odznak, nie zámok.
           </li>
           <li>
             <strong className="text-foreground">Ovládanie:</strong> prepínače
